@@ -5,15 +5,16 @@ import mongoose from 'mongoose';
 // MongoDB storage implementation
 class MongoStorage {
   constructor() {
-    // Initialize connection
-    this.initConnection();
-    // Initialize default user (super admin)
-    this.initializeDefaultUser();
+    // Initialize connection as a member variable to track its completion
+    this.connectionPromise = this.initConnection();
   }
 
   async initConnection() {
     try {
       await connectToDatabase();
+      // After connection is established, initialize the default user
+      await this.initializeDefaultUser();
+      return true;
     } catch (error) {
       console.error('Failed to connect to MongoDB:', error);
       throw error;
@@ -42,9 +43,15 @@ class MongoStorage {
       console.error('Error creating default user:', error);
     }
   }
+  
+  // Ensure connection is established before any operation
+  async ensureConnection() {
+    await this.connectionPromise;
+  }
 
   // User operations
   async getUser(id) {
+    await this.ensureConnection();
     try {
       return await User.findById(id);
     } catch (error) {
@@ -54,6 +61,7 @@ class MongoStorage {
   }
 
   async getUserByUsername(username) {
+    await this.ensureConnection();
     try {
       return await User.findOne({ username });
     } catch (error) {
@@ -63,6 +71,7 @@ class MongoStorage {
   }
 
   async getUserByEmail(email) {
+    await this.ensureConnection();
     try {
       return await User.findOne({ email });
     } catch (error) {
@@ -72,6 +81,7 @@ class MongoStorage {
   }
 
   async createUser(userData) {
+    await this.ensureConnection();
     try {
       // Hash password if not already hashed
       if (!userData.password.startsWith('$2b$')) {
@@ -88,6 +98,7 @@ class MongoStorage {
   }
 
   async getAllUsers() {
+    await this.ensureConnection();
     try {
       return await User.find();
     } catch (error) {
@@ -97,6 +108,7 @@ class MongoStorage {
   }
 
   async getSuperAdmins() {
+    await this.ensureConnection();
     try {
       return await User.find({ role: 'super_admin' });
     } catch (error) {
@@ -106,6 +118,7 @@ class MongoStorage {
   }
 
   async getAdminsByCreator(superAdminId) {
+    await this.ensureConnection();
     try {
       return await User.find({ role: 'admin' });
     } catch (error) {
@@ -116,6 +129,7 @@ class MongoStorage {
 
   // Form operations
   async createForm(formData) {
+    await this.ensureConnection();
     try {
       const form = new Form(formData);
       return await form.save();
@@ -126,6 +140,7 @@ class MongoStorage {
   }
 
   async getForm(id) {
+    await this.ensureConnection();
     try {
       return await Form.findById(id);
     } catch (error) {
@@ -135,6 +150,7 @@ class MongoStorage {
   }
 
   async updateForm(id, updates) {
+    await this.ensureConnection();
     try {
       updates.updatedAt = new Date();
       return await Form.findByIdAndUpdate(id, updates, { new: true });
@@ -145,6 +161,7 @@ class MongoStorage {
   }
 
   async deleteForm(id) {
+    await this.ensureConnection();
     try {
       await Form.findByIdAndDelete(id);
       // Also delete all submissions for this form
@@ -157,6 +174,7 @@ class MongoStorage {
   }
 
   async getForms(userId) {
+    await this.ensureConnection();
     try {
       return await Form.find({ userId }).sort({ createdAt: -1 });
     } catch (error) {
@@ -166,6 +184,7 @@ class MongoStorage {
   }
 
   async getAllForms() {
+    await this.ensureConnection();
     try {
       return await Form.find().sort({ createdAt: -1 });
     } catch (error) {
@@ -175,6 +194,7 @@ class MongoStorage {
   }
 
   async searchForms(query) {
+    await this.ensureConnection();
     try {
       return await Form.find({ 
         $or: [
@@ -189,6 +209,7 @@ class MongoStorage {
   }
 
   async publishForm(id) {
+    await this.ensureConnection();
     try {
       return await Form.findByIdAndUpdate(
         id, 
@@ -207,6 +228,7 @@ class MongoStorage {
 
   // Submission operations
   async createSubmission(submissionData) {
+    await this.ensureConnection();
     try {
       const submission = new Submission(submissionData);
       return await submission.save();
@@ -217,6 +239,7 @@ class MongoStorage {
   }
 
   async getSubmission(id) {
+    await this.ensureConnection();
     try {
       return await Submission.findById(id);
     } catch (error) {
@@ -226,6 +249,7 @@ class MongoStorage {
   }
 
   async getSubmissionsByForm(formId) {
+    await this.ensureConnection();
     try {
       return await Submission.find({ formId }).sort({ createdAt: -1 });
     } catch (error) {
@@ -235,6 +259,7 @@ class MongoStorage {
   }
 
   async deleteSubmission(id) {
+    await this.ensureConnection();
     try {
       await Submission.findByIdAndDelete(id);
       // Also delete any file uploads for this submission
@@ -248,6 +273,7 @@ class MongoStorage {
 
   // File upload operations
   async createFileUpload(fileUploadData) {
+    await this.ensureConnection();
     try {
       const fileUpload = new FileUpload(fileUploadData);
       return await fileUpload.save();
@@ -258,6 +284,7 @@ class MongoStorage {
   }
 
   async getFileUploadsBySubmission(submissionId) {
+    await this.ensureConnection();
     try {
       return await FileUpload.find({ submissionId });
     } catch (error) {
