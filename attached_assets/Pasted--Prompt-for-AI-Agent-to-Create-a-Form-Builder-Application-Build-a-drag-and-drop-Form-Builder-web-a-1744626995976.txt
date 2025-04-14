@@ -1,0 +1,163 @@
+📋 Prompt for AI Agent to Create a Form Builder Application
+Build a drag-and-drop Form Builder web application using the MERN stack (MongoDB, Express.js, React.js, Node.js) with the following specifications:
+
+🔧 Core Features:
+Drag-and-Drop Form Builder:
+
+Components:
+
+Text Input
+
+Text Area
+
+Checkbox
+
+Select List
+
+Radio Button
+
+Date/Time Picker
+
+Toggle Switch
+
+File Upload (png, jpeg, pdf, doc)
+
+Number Input
+
+Email Input
+
+Audio/Video Upload
+
+Banner Upload (Special UI Behavior)
+
+Users can drag, drop, and reorder components.
+
+Ability to move components up/down, delete, or merge two components into a row.
+
+Component Property Editor:
+
+Editable fields:
+
+Label, Sublabel, Placeholder, Helper Text
+
+Required flag
+
+Validation rules (type-specific: regex, min/max for numbers, email format, file types, etc.)
+
+Special Component – Banner Upload:
+
+When added, the form layout switches to 2-column layout:
+
+Left Side: Banner File Upload component
+
+Right Side: Rest of the form
+
+Form Management:
+
+Submit button included
+
+Save Form (Draft mode)
+
+Publish Form: Generates a public shareable link
+
+View, Edit, Delete published forms
+
+Copy form link to clipboard
+
+Search bar on landing page to filter forms by name
+
+Student Data Management:
+
+Admins can view, edit, delete student responses submitted via forms
+
+Roles & Permissions:
+
+Super Admin:
+
+Create Admins
+
+Create events/forms
+
+View all Admin data and forms
+
+Admin:
+
+Create and manage their own forms/events
+
+Cannot see other Admins' data or forms
+
+📱 Frontend:
+Built using React.js
+
+Use React DnD or react-beautiful-dnd for drag-and-drop
+
+Use React Hook Form or Formik for form handling
+
+Use Bootstrap or Material-UI for styling
+
+Shareable form URL should render the form in a clean and mobile-friendly layout
+
+🌐 Backend:
+Node.js + Express.js
+
+RESTful API design
+
+Use Multer for handling file uploads (images, PDFs, audio/video, docs)
+
+Store form schema in MongoDB (form definition + field configurations)
+
+Store submitted responses in a separate collection
+
+🛢️ Database (MongoDB):
+Collections:
+
+users (Super Admins, Admins)
+
+forms (Saved and published form metadata)
+
+submissions (Student response data)
+
+events (if needed separately from forms)
+
+🧩 Advanced Functionality:
+Save custom form layout JSON in DB
+
+Render saved form dynamically using JSON structure
+
+Export student data as CSV/Excel
+
+Pagination in student data list
+
+Search bar to filter student submissions by name/email
+
+🔐 Authentication & Authorization:
+JWT-based login
+
+Super Admin and Admin roles
+
+Super Admin dashboard with admin management
+
+Admin dashboard with only their forms and responses
+
+🖼️ UI Layout:
+Dashboard for Admin and Super Admin
+
+Public landing page with:
+
+Form cards (with name, description)
+
+Search bar
+
+Form preview page (public view via shareable link)
+
+✅ Deliverables:
+Complete MERN Stack application with frontend + backend
+
+Setup scripts for local development
+
+Environment variable setup guide
+
+README for deployment instructions
+
+Docker support (optional)
+
