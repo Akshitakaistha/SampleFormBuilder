@@ -1,5 +1,6 @@
 import { connectToDatabase, User, Form, Submission, FileUpload } from './mongodb';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 
 // MongoDB storage implementation
 class MongoStorage {
