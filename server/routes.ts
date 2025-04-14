@@ -1,6 +1,5 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -14,6 +13,10 @@ import {
   insertFileUploadSchema
 } from "@shared/schema";
 import { ZodError } from "zod-validation-error";
+import { mongoStorage } from "./mongo-storage";
+
+// Use MongoDB storage instead of memory storage
+const storage = mongoStorage;
 
 // Setup JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || "formbuilder-secret-key";
@@ -70,7 +73,7 @@ const authenticate = async (req: Request, res: Response, next: Function) => {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
     const user = await storage.getUser(decoded.id);
     
     if (!user) {
@@ -289,7 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/forms/:id", authenticate, async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form) {
@@ -298,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has access to this form
       const user = (req as any).user;
-      if (user.role !== "super_admin" && form.userId !== user.id) {
+      if (user.role !== "super_admin" && String(form.userId) !== String(user._id)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -310,7 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/forms/:id", authenticate, async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form) {
@@ -319,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has access to update this form
       const user = (req as any).user;
-      if (user.role !== "super_admin" && form.userId !== user.id) {
+      if (user.role !== "super_admin" && String(form.userId) !== String(user._id)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -338,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/forms/:id", authenticate, async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form) {
@@ -347,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has access to delete this form
       const user = (req as any).user;
-      if (user.role !== "super_admin" && form.userId !== user.id) {
+      if (user.role !== "super_admin" && String(form.userId) !== String(user._id)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -360,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/forms/:id/publish", authenticate, async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form) {
@@ -369,7 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has access to publish this form
       const user = (req as any).user;
-      if (user.role !== "super_admin" && form.userId !== user.id) {
+      if (user.role !== "super_admin" && String(form.userId) !== String(user._id)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -383,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public form route (no authentication required)
   app.get("/api/public-forms/:id", async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form || form.status !== "published") {
@@ -399,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Form submission routes
   app.post("/api/forms/:id/submit", async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form || form.status !== "published") {
@@ -423,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/forms/:id/submissions", authenticate, async (req, res) => {
     try {
-      const formId = parseInt(req.params.id);
+      const formId = req.params.id;
       const form = await storage.getForm(formId);
       
       if (!form) {
@@ -432,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has access to view submissions
       const user = (req as any).user;
-      if (user.role !== "super_admin" && form.userId !== user.id) {
+      if (user.role !== "super_admin" && String(form.userId) !== String(user._id)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -451,7 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const file = req.file;
-      const submissionId = parseInt(req.body.submissionId);
+      const submissionId = req.body.submissionId;
       const fieldId = req.body.fieldId;
       
       const fileUploadData = insertFileUploadSchema.parse({
