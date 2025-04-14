@@ -169,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create and return JWT token
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "30d" });
+      const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "30d" });
       
       // Return user without password
       const { password: _, ...userWithoutPassword } = user;
@@ -178,7 +178,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         token 
       });
     } catch (error) {
+      console.error('Login error:', error);
       return res.status(500).json({ message: "Login failed" });
+    }
+  });
+  
+  // Get current authenticated user
+  app.get("/api/auth/me", authenticate, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      // Return user without password
+      const { password, ...userWithoutPassword } = user;
+      return res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Get me error:', error);
+      return res.status(500).json({ message: "Failed to get user profile" });
     }
   });
 
