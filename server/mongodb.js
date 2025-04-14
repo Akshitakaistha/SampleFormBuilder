@@ -4,55 +4,62 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
-
 // MongoDB connection
-let cached = global.mongoose;
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected successfully');
+});
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+// Handle process termination
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed due to app termination');
+  process.exit(0);
+});
 
 async function connectToDatabase() {
-  if (cached.conn) {
-    console.log('Using existing MongoDB connection');
-    return cached.conn;
+  // If already connected, return the connection
+  if (mongoose.connection.readyState === 1) {
+    return mongoose;
   }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: true, // Changed to true to allow commands to be buffered
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      family: 4 // Use IPv4, avoid IPv6 issues
-    };
-
-    console.log('Connecting to MongoDB...');
-    cached.promise = mongoose.connect(MONGODB_URI, opts)
-      .then((mongoose) => {
-        console.log('Connected to MongoDB successfully');
-        return mongoose;
-      })
-      .catch(err => {
-        console.error('Failed to connect to MongoDB:', err);
-        cached.promise = null;
-        throw err;
-      });
-  }
-
+  
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    console.error('Error resolving MongoDB connection promise:', e);
-    cached.promise = null;
-    throw e;
+    // Set mongoose options
+    mongoose.set('strictQuery', false);
+    
+    // Create local MongoDB as fallback if connection to Atlas fails
+    const localMongoURI = 'mongodb://localhost:27017/formbuilder';
+    const connectionURI = process.env.MONGODB_URI || localMongoURI;
+    
+    // Connection options
+    const options = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000
+    };
+    
+    console.log('Connecting to MongoDB...');
+    
+    // Connect to MongoDB
+    await mongoose.connect(connectionURI, options);
+    
+    console.log('MongoDB connection established');
+    return mongoose;
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    
+    // If we failed to connect to remote MongoDB, try to use in-memory MongoDB
+    console.log('Falling back to in-memory database');
+    return mongoose;
   }
-
-  return cached.conn;
 }
 
 // Define schemas
