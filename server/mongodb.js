@@ -36,46 +36,14 @@ async function connectToDatabase() {
     
     // Get MongoDB URI from environment variable, or use localhost as fallback
     const localMongoURI = 'mongodb://localhost:27017/formbuilder';
-    const connectionURI = process.env.MONGODB_URI || localMongoURI;
-    
-    // Connection options
-    const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      connectTimeoutMS: 5000,
-      serverSelectionTimeoutMS: 5000,
-      // Disable SSL certificate verification for development
-      ssl: process.env.NODE_ENV !== 'production' ? false : true,
-      sslValidate: process.env.NODE_ENV === 'production',
-      retryWrites: true,
-      w: 'majority'
-    };
+    const uri = process.env.MONGODB_URI || localMongoURI;
     
     console.log('Connecting to MongoDB...');
     
-    // Connect to MongoDB with retry logic
-    try {
-      await mongoose.connect(connectionURI, options);
-      console.log('MongoDB connection established');
-      return mongoose;
-    } catch (initialError) {
-      console.warn('Initial MongoDB connection failed, trying alternative options:', initialError.message);
-      
-      // Try with different SSL options for development environments
-      try {
-        options.ssl = true;
-        options.sslValidate = false;
-        options.tlsAllowInvalidCertificates = true;
-        options.tlsAllowInvalidHostnames = true;
-        
-        await mongoose.connect(connectionURI, options);
-        console.log('MongoDB connected with relaxed SSL settings');
-        return mongoose;
-      } catch (retryError) {
-        console.error('All MongoDB connection attempts failed:', retryError.message);
-        throw retryError; // Re-throw to be caught by outer try/catch
-      }
-    }
+    // Connect to MongoDB with minimal options
+    await mongoose.connect(uri);
+    console.log('MongoDB connection established');
+    return mongoose;
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
     
