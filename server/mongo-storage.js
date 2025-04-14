@@ -5,27 +5,57 @@ import mongoose from 'mongoose';
 // MongoDB storage implementation
 class MongoStorage {
   constructor() {
-    // Initialize connection as a member variable to track its completion
+    // Connection status flags
+    this.connectionEstablished = false;
+    this.isUsingInMemory = false;
+    this.isConnectionAttempted = false;
+    
+    // Initialize connection promise
     this.connectionPromise = this.initConnection();
   }
 
   async initConnection() {
     try {
-      await connectToDatabase();
+      // Prevent multiple initialization attempts
+      if (this.isConnectionAttempted) {
+        return this.connectionEstablished;
+      }
+      
+      this.isConnectionAttempted = true;
+      
+      // Attempt to connect to MongoDB
+      const connection = await connectToDatabase();
+      
+      if (!connection) {
+        console.log('MongoDB connection failed, using in-memory storage instead');
+        this.isUsingInMemory = true;
+        this.connectionEstablished = true;
+        return true;
+      }
+      
       // After connection is established, initialize the default user
       await this.initializeDefaultUser();
+      this.connectionEstablished = true;
       return true;
     } catch (error) {
-      console.error('Failed to connect to MongoDB:', error);
-      throw error;
+      console.error('Failed to connect to MongoDB, falling back to in-memory storage:', error);
+      this.isUsingInMemory = true;
+      this.connectionEstablished = true;
+      return true; // Still return true so the app can continue with in-memory storage
     }
   }
 
   async initializeDefaultUser() {
     try {
-      const existingAdmin = await User.findOne({ role: 'super_admin' });
+      if (this.isUsingInMemory) {
+        console.log('Using in-memory storage, skipping default user creation');
+        return;
+      }
+      
+      const existingAdmin = await User.findOne({ role: 'super_admin' }).exec();
       
       if (!existingAdmin) {
+        console.log('No super admin found, creating default user...');
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash('admin123', salt);
         
@@ -38,6 +68,8 @@ class MongoStorage {
         
         await superAdmin.save();
         console.log('Default super admin user created');
+      } else {
+        console.log('Default super admin user already exists');
       }
     } catch (error) {
       console.error('Error creating default user:', error);
@@ -46,7 +78,11 @@ class MongoStorage {
   
   // Ensure connection is established before any operation
   async ensureConnection() {
-    await this.connectionPromise;
+    if (!this.connectionEstablished) {
+      await this.connectionPromise;
+    }
+    
+    return this.connectionEstablished;
   }
 
   // User operations

@@ -74,9 +74,11 @@ const authenticate = async (req: Request, res: Response, next: Function) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+    // Get user by ID (could be MongoDB ObjectId or number in MemStorage)
     const user = await storage.getUser(decoded.id);
     
     if (!user) {
+      console.error(`User not found for ID: ${decoded.id}`);
       return res.status(401).json({ message: "User not found" });
     }
     
@@ -84,6 +86,7 @@ const authenticate = async (req: Request, res: Response, next: Function) => {
     (req as any).user = user;
     next();
   } catch (error) {
+    console.error('Authentication error:', error);
     return res.status(401).json({ message: "Invalid token" });
   }
 };
@@ -135,8 +138,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword
       });
       
-      // Create and return JWT token
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "30d" });
+      // Create and return JWT token - use _id for MongoDB or id for MemStorage
+      const userId = user._id || user.id;
+      const token = jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "30d" });
       
       // Return user without password
       const { password, ...userWithoutPassword } = user;
@@ -168,8 +172,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid username or password" });
       }
       
-      // Create and return JWT token
-      const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "30d" });
+      // Create and return JWT token - use _id for MongoDB or id for MemStorage
+      const userId = user._id || user.id;
+      const token = jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "30d" });
       
       // Return user without password
       const { password: _, ...userWithoutPassword } = user;
