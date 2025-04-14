@@ -242,4 +242,151 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { db } from './db';
+import { eq, and, like, desc } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
+
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    // Hash password if not already hashed
+    if (!insertUser.password.startsWith('$2b$')) {
+      const salt = await bcrypt.genSalt(10);
+      insertUser.password = await bcrypt.hash(insertUser.password, salt);
+    }
+
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async getSuperAdmins(): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.role, 'super_admin'));
+  }
+
+  async getAdminsByCreator(superAdminId: number): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.role, 'admin'));
+  }
+
+  // Form operations
+  async createForm(insertForm: InsertForm): Promise<Form> {
+    const [form] = await db.insert(forms).values(insertForm).returning();
+    return form;
+  }
+
+  async getForm(id: number): Promise<Form | undefined> {
+    const [form] = await db.select().from(forms).where(eq(forms.id, id));
+    return form;
+  }
+
+  async updateForm(id: number, updates: Partial<InsertForm>): Promise<Form | undefined> {
+    const [updatedForm] = await db
+      .update(forms)
+      .set(updates)
+      .where(eq(forms.id, id))
+      .returning();
+    return updatedForm;
+  }
+
+  async deleteForm(id: number): Promise<boolean> {
+    const result = await db.delete(forms).where(eq(forms.id, id));
+    return true; // Assuming delete operation succeeded
+  }
+
+  async getForms(userId: number): Promise<Form[]> {
+    return await db.select().from(forms).where(eq(forms.userId, userId));
+  }
+
+  async getAllForms(): Promise<Form[]> {
+    return await db.select().from(forms).orderBy(desc(forms.createdAt));
+  }
+
+  async searchForms(query: string): Promise<Form[]> {
+    return await db
+      .select()
+      .from(forms)
+      .where(
+        like(forms.name, `%${query}%`)
+      );
+  }
+
+  async publishForm(id: number): Promise<Form | undefined> {
+    const [form] = await db
+      .update(forms)
+      .set({
+        status: 'published',
+        publishedUrl: `/public-form/${id}`
+      })
+      .where(eq(forms.id, id))
+      .returning();
+    return form;
+  }
+
+  // Submission operations
+  async createSubmission(insertSubmission: InsertSubmission): Promise<Submission> {
+    const [submission] = await db
+      .insert(submissions)
+      .values(insertSubmission)
+      .returning();
+    return submission;
+  }
+
+  async getSubmission(id: number): Promise<Submission | undefined> {
+    const [submission] = await db
+      .select()
+      .from(submissions)
+      .where(eq(submissions.id, id));
+    return submission;
+  }
+
+  async getSubmissionsByForm(formId: number): Promise<Submission[]> {
+    return await db
+      .select()
+      .from(submissions)
+      .where(eq(submissions.formId, formId))
+      .orderBy(desc(submissions.createdAt));
+  }
+
+  async deleteSubmission(id: number): Promise<boolean> {
+    await db.delete(submissions).where(eq(submissions.id, id));
+    return true;
+  }
+
+  // File upload operations
+  async createFileUpload(insertFileUpload: InsertFileUpload): Promise<FileUpload> {
+    const [fileUpload] = await db
+      .insert(fileUploads)
+      .values(insertFileUpload)
+      .returning();
+    return fileUpload;
+  }
+
+  async getFileUploadsBySubmission(submissionId: number): Promise<FileUpload[]> {
+    return await db
+      .select()
+      .from(fileUploads)
+      .where(eq(fileUploads.submissionId, submissionId));
+  }
+}
+
+// Initialize the database storage
+export const storage = new DatabaseStorage();
