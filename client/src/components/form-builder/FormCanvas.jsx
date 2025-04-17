@@ -19,19 +19,23 @@ const FormCanvas = () => {
   
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
     if (dropPlaceholderRef.current) {
       dropPlaceholderRef.current.classList.remove('hidden');
     }
   };
   
   const handleDragLeave = (e) => {
-    if (!formCanvasRef.current.contains(e.relatedTarget) && dropPlaceholderRef.current) {
+    e.preventDefault();
+    if (!formCanvasRef.current?.contains(e.relatedTarget) && dropPlaceholderRef.current) {
       dropPlaceholderRef.current.classList.add('hidden');
     }
   };
   
   const handleDrop = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (dropPlaceholderRef.current) {
       dropPlaceholderRef.current.classList.add('hidden');
     }

@@ -17,6 +17,24 @@ const PropertyEditor = () => {
     });
   };
 
+  const handleOptionChange = (index, field, value) => {
+    const newOptions = [...activeField.options];
+    newOptions[index] = { ...newOptions[index], [field]: value };
+    updateFieldProperties(activeField.id, { options: newOptions });
+  };
+
+  const addOption = () => {
+    const newOptions = [...(activeField.options || [])];
+    newOptions.push({ label: `Option ${newOptions.length + 1}`, value: `option${newOptions.length + 1}` });
+    updateFieldProperties(activeField.id, { options: newOptions });
+  };
+
+  const removeOption = (index) => {
+    const newOptions = [...activeField.options];
+    newOptions.splice(index, 1);
+    updateFieldProperties(activeField.id, { options: newOptions });
+  };
+
   if (!activeField) {
     return (
       <div className="w-72 bg-white border-l border-gray-200 overflow-auto">
@@ -275,6 +293,47 @@ const PropertyEditor = () => {
           </div>
         </div>
         
+        {/* Options Editor for Select, Radio, and Checkbox */}
+        {(activeField.type === 'select' || activeField.type === 'radio') && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+            <div className="space-y-2">
+              {(activeField.options || []).map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={option.label}
+                    onChange={(e) => handleOptionChange(index, 'label', e.target.value)}
+                    className="flex-1 border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm"
+                    placeholder="Option label"
+                  />
+                  <input
+                    type="text"
+                    value={option.value}
+                    onChange={(e) => handleOptionChange(index, 'value', e.target.value)}
+                    className="flex-1 border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm"
+                    placeholder="Option value"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeOption(index)}
+                    className="p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <Icons.Delete />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addOption}
+                className="w-full mt-2 px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 hover:bg-gray-50"
+              >
+                Add Option
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Apply Changes Button */}
         <div className="pt-4 border-t border-gray-200">
           <button 
