@@ -63,7 +63,7 @@ const FormBuilder = ({ formId }) => {
     } else {
       resetFormBuilder();
     }
-  }, [formId]); // Only depend on formId
+  }, [formId]); // Only depend on formId changes
 
   const handleSaveDraft = useCallback(async () => {
     try {
