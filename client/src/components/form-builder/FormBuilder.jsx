@@ -63,12 +63,7 @@ const FormBuilder = ({ formId }) => {
     } else {
       resetFormBuilder();
     }
-
-    // Cleanup
-    return () => {
-      // Any cleanup code if needed
-    };
-  }, [formId, setFormState, toast, resetFormBuilder]);
+  }, [formId]); // Only depend on formId
 
   const handleSaveDraft = useCallback(async () => {
     try {
