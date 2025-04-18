@@ -50,11 +50,19 @@ const FormCanvas = () => {
     <div className="flex-1 overflow-y-auto bg-gray-50 relative">
       <div className="p-6 max-w-4xl mx-auto">
         {hasBannerComponent ? (
-          // Banner-enabled form layout (2-column)
+          // Banner-enabled form layout
           <div className="bg-white rounded-lg shadow-sm mb-6">
-            <div className="flex flex-col md:flex-row">
-              {/* Banner Upload Area (Left side) */}
-              <div className="md:w-1/3 p-4 border-b md:border-b-0 md:border-r border-gray-200">
+            <div className={`${
+              bannerField?.position === 'top' 
+                ? 'flex flex-col' 
+                : 'flex flex-col md:flex-row'
+            }`}>
+              {/* Banner Upload Area */}
+              <div className={`${
+                bannerField?.position === 'top'
+                  ? 'w-full h-[300px] border-b border-gray-200'
+                  : 'md:w-1/2 p-4 border-b md:border-b-0 md:border-r border-gray-200'
+              } p-4`}>
                 <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center h-full">
                   <Icons.BannerUpload />
                   <p className="mt-2 text-sm text-gray-500">Upload event banner</p>
@@ -65,8 +73,12 @@ const FormCanvas = () => {
                 </div>
               </div>
               
-              {/* Form Fields (Right side) */}
-              <div className="md:w-2/3 p-4">
+              {/* Form Fields */}
+              <div className={`${
+                bannerField?.position === 'top'
+                  ? 'w-full'
+                  : 'md:w-1/2'
+              } p-4`}>
                 <div 
                   id="formCanvas" 
                   ref={formCanvasRef}

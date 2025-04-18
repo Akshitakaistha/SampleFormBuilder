@@ -10,6 +10,9 @@ const PropertyEditor = () => {
   const [showValidationOptions, setShowValidationOptions] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   
+  // Special handling for banner position
+  const isBannerField = activeField?.type === 'bannerUpload';
+  
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     updateFieldProperties(activeField.id, {
@@ -98,6 +101,21 @@ const PropertyEditor = () => {
               placeholder="Additional description for the checkbox"
               className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             />
+          </div>
+        )}
+        
+        {isBannerField && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Banner Position</label>
+            <select
+              name="position"
+              value={activeField.position || 'left'}
+              onChange={handleInputChange}
+              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            >
+              <option value="left">Left Side</option>
+              <option value="top">Top</option>
+            </select>
           </div>
         )}
         

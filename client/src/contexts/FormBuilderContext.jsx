@@ -115,12 +115,13 @@ const initialFieldStates = {
   },
   bannerUpload: {
     type: 'bannerUpload',
-    label: 'Banner Upload',
-    helperText: 'Upload a banner image for your form',
+    label: 'Upload Banner',
+    helperText: 'PNG, JPG, GIF up to 10MB',
     required: false,
     allowedTypes: 'image/*',
     fileTypeText: 'PNG, JPG, GIF up to 10MB',
-    maxFileSize: 10
+    maxFileSize: 10,
+    position: 'left'
   }
 };
 
@@ -129,25 +130,25 @@ export const FormBuilderProvider = ({ children }) => {
   const [formState, setFormState] = useState({ ...initialFormState });
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
-  
+
   // Check if the form has a banner component
   const hasBannerComponent = formState.fields.some(field => field.type === 'bannerUpload');
-  
+
   // Add new field to the form
   const addField = (fieldType) => {
     if (!initialFieldStates[fieldType]) return;
-    
+
     // Create new field with default values
     const newField = {
       ...initialFieldStates[fieldType],
       id: uuidv4()
     };
-    
+
     // Special handling for bannerUpload - only allow one per form
     if (fieldType === 'bannerUpload' && hasBannerComponent) {
       return;
     }
-    
+
     // Update form state with new field
     setFormState(prev => ({
       ...prev,
@@ -155,12 +156,12 @@ export const FormBuilderProvider = ({ children }) => {
       activeField: newField.id
     }));
   };
-  
+
   // Get active field
   const getActiveField = () => {
     return formState.fields.find(field => field.id === formState.activeField);
   };
-  
+
   // Set active field
   const setActiveField = (fieldId) => {
     setFormState(prev => ({
@@ -168,23 +169,23 @@ export const FormBuilderProvider = ({ children }) => {
       activeField: fieldId
     }));
   };
-  
+
   // Update field properties
   const updateFieldProperties = (fieldId, properties) => {
     setFormState(prev => ({
       ...prev,
-      fields: prev.fields.map(field => 
-        field.id === fieldId 
-          ? { ...field, ...properties } 
+      fields: prev.fields.map(field =>
+        field.id === fieldId
+          ? { ...field, ...properties }
           : field
       )
     }));
   };
-  
+
   // Move field up in order
   const moveFieldUp = (index) => {
     if (index === 0) return;
-    
+
     setFormState(prev => {
       const newFields = [...prev.fields];
       [newFields[index], newFields[index - 1]] = [newFields[index - 1], newFields[index]];
@@ -194,11 +195,11 @@ export const FormBuilderProvider = ({ children }) => {
       };
     });
   };
-  
+
   // Move field down in order
   const moveFieldDown = (index) => {
     if (index === formState.fields.length - 1) return;
-    
+
     setFormState(prev => {
       const newFields = [...prev.fields];
       [newFields[index], newFields[index + 1]] = [newFields[index + 1], newFields[index]];
@@ -208,7 +209,7 @@ export const FormBuilderProvider = ({ children }) => {
       };
     });
   };
-  
+
   // Delete field
   const deleteField = (fieldId) => {
     setFormState(prev => ({
@@ -217,14 +218,14 @@ export const FormBuilderProvider = ({ children }) => {
       activeField: prev.activeField === fieldId ? null : prev.activeField
     }));
   };
-  
+
   // Reset form builder to initial state
   const resetFormBuilder = () => {
     setFormState({ ...initialFormState });
     setShowPreviewModal(false);
     setShowPublishModal(false);
   };
-  
+
   const value = {
     formState,
     setFormState,
@@ -242,7 +243,7 @@ export const FormBuilderProvider = ({ children }) => {
     setShowPublishModal,
     resetFormBuilder
   };
-  
+
   return (
     <FormBuilderContext.Provider value={value}>
       {children}
