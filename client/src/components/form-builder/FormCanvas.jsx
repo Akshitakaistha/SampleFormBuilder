@@ -65,9 +65,18 @@ const FormCanvas = () => {
                   bannerField?.position === 'top'
                     ? 'w-full h-[300px] border-b border-gray-200'
                     : 'md:w-1/2 p-4 border-b md:border-b-0 md:border-r border-gray-200'
-                } p-4`}
+                } p-4 relative`}
                 onClick={() => bannerField && setActiveField(bannerField.id)}
               >
+                <button 
+                  className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteField(bannerField.id);
+                  }}
+                >
+                  <Icons.Delete />
+                </button>
                 <div className={`bg-gray-50 border-2 border-dashed ${formState.activeField === bannerField?.id ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-300'} rounded-md p-6 flex flex-col items-center justify-center h-full cursor-pointer`}>
                   <Icons.BannerUpload />
                   <p className="mt-2 text-sm text-gray-500">Upload event banner</p>

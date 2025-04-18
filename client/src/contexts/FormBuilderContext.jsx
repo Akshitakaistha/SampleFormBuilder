@@ -122,7 +122,11 @@ const initialFieldStates = {
     allowedTypes: 'image/*',
     fileTypeText: 'PNG, JPG, GIF up to 10MB',
     maxFileSize: 10,
-    position: 'left'
+    position: 'left',
+    bannerUrl: '',
+    canUpload: true,
+    canDownload: true,
+    canView: true
   }
 };
 

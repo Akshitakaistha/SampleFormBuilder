@@ -105,18 +105,49 @@ const PropertyEditor = () => {
         )}
         
         {isBannerField && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Banner Position</label>
-            <select
-              name="position"
-              value={activeField.position || 'left'}
-              onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-            >
-              <option value="left">Left Side</option>
-              <option value="top">Top</option>
-            </select>
-          </div>
+          <>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Banner Position</label>
+              <select
+                name="position"
+                value={activeField.position || 'left'}
+                onChange={handleInputChange}
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                <option value="left">Left Side</option>
+                <option value="top">Top</option>
+              </select>
+            </div>
+            <div className="mb-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-gray-700">Allow Upload</label>
+                <Switch
+                  checked={activeField.canUpload || false}
+                  onCheckedChange={(checked) => {
+                    updateFieldProperties(activeField.id, { canUpload: checked });
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-gray-700">Allow Download</label>
+                <Switch
+                  checked={activeField.canDownload || false}
+                  onCheckedChange={(checked) => {
+                    updateFieldProperties(activeField.id, { canDownload: checked });
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-gray-700">Allow View</label>
+                <Switch
+                  checked={activeField.canView || false}
+                  onCheckedChange={(checked) => {
+                    updateFieldProperties(activeField.id, { canView: checked });
+                  }}
+                />
+              </div>
+            </div>
+          </>
         )}
         
         <div className="mb-4">
