@@ -96,7 +96,7 @@ const FormCanvas = () => {
                 <div 
                   id="formCanvas" 
                   ref={formCanvasRef}
-                  className="grid grid-cols-2 gap-4"
+                  className="grid grid-cols-2 gap-4 w-full"
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
