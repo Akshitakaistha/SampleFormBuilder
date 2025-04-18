@@ -21,7 +21,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         />
       );
-      
+
     case 'textArea':
       return (
         <textarea 
@@ -36,7 +36,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         ></textarea>
       );
-      
+
     case 'checkbox':
       return (
         <div className="mt-2">
@@ -50,13 +50,13 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
               />
             </div>
             <div className="ml-3 text-sm">
-              <label htmlFor={`checkbox-${field.id}`} className="font-medium text-gray-700">{field.checkboxLabel || 'I agree'}</label>
+              <Label htmlFor={`checkbox-${field.id}`}>{field.label || 'I agree to the terms and conditions'}</Label>
               {field.checkboxText && <p className="text-gray-500">{field.checkboxText}</p>}
             </div>
           </div>
         </div>
       );
-      
+
     case 'select':
       return (
         <select 
@@ -77,7 +77,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           )}
         </select>
       );
-      
+
     case 'radio':
       return (
         <RadioGroup 
@@ -109,7 +109,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           )}
         </RadioGroup>
       );
-      
+
     case 'date':
       return (
         <input 
@@ -123,7 +123,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         />
       );
-      
+
     case 'toggle':
       return (
         <div className="mt-2 flex items-center">
@@ -135,7 +135,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           <span className="ml-2 text-sm text-gray-700">{field.toggleLabel || 'Enable'}</span>
         </div>
       );
-      
+
     case 'fileUpload':
       return (
         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
@@ -165,7 +165,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           </div>
         </div>
       );
-      
+
     case 'number':
       return (
         <input 
@@ -181,7 +181,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         />
       );
-      
+
     case 'email':
       return (
         <input 
@@ -195,7 +195,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         />
       );
-      
+
     case 'mediaUpload':
       return (
         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
@@ -226,11 +226,11 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           </div>
         </div>
       );
-      
+
     case 'bannerUpload':
       // This is handled in the FormCanvas component
       return null;
-      
+
     default:
       return <p className="text-sm text-gray-500">Unknown field type: {field.type}</p>;
   }
