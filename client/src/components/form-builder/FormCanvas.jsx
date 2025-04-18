@@ -95,10 +95,10 @@ const FormCanvas = () => {
                   {formState.fields.filter(field => field.type !== 'bannerUpload').map((field, index) => (
                     <div 
                       key={field.id} 
-                      className={`form-field-container ${field.gridColumn === 'half' ? 'col-span-1' : 'col-span-2'}`}
+                      className={`form-field-container ${field.gridColumn === 'half' ? 'col-span-1' : 'col-span-2'} w-full`}
                     >
                       <div 
-                        className={`form-component bg-white border border-gray-200 hover:border-primary-400 rounded-lg p-4 shadow-sm ${
+                        className={`form-component bg-white border border-gray-200 hover:border-primary-400 rounded-lg p-4 shadow-sm w-full ${
                           formState.activeField === field.id ? 'border-primary-500 ring-2 ring-primary-200' : ''
                         }`}
                         onClick={() => setActiveField(field.id)}
