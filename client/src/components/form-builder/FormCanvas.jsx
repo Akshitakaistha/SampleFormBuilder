@@ -60,12 +60,15 @@ const FormCanvas = () => {
                 : 'flex flex-col md:flex-row'
             }`}>
               {/* Banner Upload Area */}
-              <div className={`${
-                bannerField?.position === 'top'
-                  ? 'w-full h-[300px] border-b border-gray-200'
-                  : 'md:w-1/2 p-4 border-b md:border-b-0 md:border-r border-gray-200'
-              } p-4`}>
-                <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center h-full">
+              <div 
+                className={`${
+                  bannerField?.position === 'top'
+                    ? 'w-full h-[300px] border-b border-gray-200'
+                    : 'md:w-1/2 p-4 border-b md:border-b-0 md:border-r border-gray-200'
+                } p-4`}
+                onClick={() => bannerField && setActiveField(bannerField.id)}
+              >
+                <div className={`bg-gray-50 border-2 border-dashed ${formState.activeField === bannerField?.id ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-300'} rounded-md p-6 flex flex-col items-center justify-center h-full cursor-pointer`}>
                   <Icons.BannerUpload />
                   <p className="mt-2 text-sm text-gray-500">Upload event banner</p>
                   <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF up to 10MB</p>
