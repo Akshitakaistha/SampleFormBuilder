@@ -22,7 +22,8 @@ const initialFieldStates = {
     label: 'Text Input',
     helperText: 'Enter text here',
     placeholder: 'Type here...',
-    required: false
+    required: false,
+    gridColumn: 'full' // 'full', 'half'
   },
   textArea: {
     type: 'textArea',

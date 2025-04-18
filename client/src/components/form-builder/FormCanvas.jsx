@@ -13,12 +13,12 @@ const FormCanvas = () => {
     deleteField,
     hasBannerComponent
   } = useFormBuilder();
-  
+
   const bannerField = formState.fields.find(field => field.type === 'bannerUpload');
-  
+
   const dropPlaceholderRef = useRef(null);
   const formCanvasRef = useRef(null);
-  
+
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
@@ -26,28 +26,28 @@ const FormCanvas = () => {
       dropPlaceholderRef.current.classList.remove('hidden');
     }
   };
-  
+
   const handleDragLeave = (e) => {
     e.preventDefault();
     if (!formCanvasRef.current?.contains(e.relatedTarget) && dropPlaceholderRef.current) {
       dropPlaceholderRef.current.classList.add('hidden');
     }
   };
-  
+
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (dropPlaceholderRef.current) {
       dropPlaceholderRef.current.classList.add('hidden');
     }
-    
+
     const componentType = e.dataTransfer.getData('componentType');
     if (componentType) {
       addField(componentType);
     }
   };
-  
+
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 relative">
       <div className="p-6 max-w-4xl mx-auto">
@@ -77,7 +77,7 @@ const FormCanvas = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Form Fields */}
               <div className={`${
                 bannerField?.position === 'top'
@@ -87,13 +87,16 @@ const FormCanvas = () => {
                 <div 
                   id="formCanvas" 
                   ref={formCanvasRef}
-                  className="space-y-4"
+                  className="grid grid-cols-2 gap-4"
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                 >
                   {formState.fields.filter(field => field.type !== 'bannerUpload').map((field, index) => (
-                    <div key={field.id} className="form-field-container">
+                    <div 
+                      key={field.id} 
+                      className={`form-field-container ${field.gridColumn === 'half' ? 'col-span-1' : 'col-span-2'}`}
+                    >
                       <div 
                         className={`form-component bg-white border border-gray-200 hover:border-primary-400 rounded-lg p-4 shadow-sm ${
                           formState.activeField === field.id ? 'border-primary-500 ring-2 ring-primary-200' : ''
@@ -137,12 +140,12 @@ const FormCanvas = () => {
                             </button>
                           </div>
                         </div>
-                        
+
                         <FormComponents field={field} isPreview={false} />
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Drop Zone Placeholder */}
                   <div 
                     id="dropPlaceholder" 
@@ -151,7 +154,7 @@ const FormCanvas = () => {
                   >
                     Drop component here
                   </div>
-                  
+
                   {/* Form Submit Button */}
                   {formState.fields.length > 0 && (
                     <div className="form-component bg-white border border-gray-200 hover:border-primary-400 rounded-lg p-4 shadow-sm">
@@ -174,7 +177,7 @@ const FormCanvas = () => {
           <div 
             id="formCanvas" 
             ref={formCanvasRef}
-            className="space-y-4 bg-white rounded-lg shadow-sm p-6"
+            className="grid grid-cols-1 gap-4 bg-white rounded-lg shadow-sm p-6"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -224,12 +227,12 @@ const FormCanvas = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <FormComponents field={field} isPreview={false} />
                 </div>
               </div>
             ))}
-            
+
             {/* Drop Zone Placeholder */}
             <div 
               id="dropPlaceholder" 
@@ -238,7 +241,7 @@ const FormCanvas = () => {
             >
               Drop component here
             </div>
-            
+
             {/* Form Submit Button */}
             {formState.fields.length > 0 && (
               <div className="form-component bg-white border border-gray-200 hover:border-primary-400 rounded-lg p-4 shadow-sm">

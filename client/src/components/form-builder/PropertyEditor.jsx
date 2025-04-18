@@ -120,6 +120,19 @@ const PropertyEditor = () => {
         )}
         
         <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Grid Layout</label>
+          <select
+            name="gridColumn"
+            value={activeField.gridColumn || 'full'}
+            onChange={handleInputChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+          >
+            <option value="full">Full Width</option>
+            <option value="half">Half Width</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Placeholder</label>
           <input 
             type="text"
