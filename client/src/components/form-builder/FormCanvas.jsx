@@ -14,6 +14,8 @@ const FormCanvas = () => {
     hasBannerComponent
   } = useFormBuilder();
   
+  const bannerField = formState.fields.find(field => field.type === 'bannerUpload');
+  
   const dropPlaceholderRef = useRef(null);
   const formCanvasRef = useRef(null);
   
