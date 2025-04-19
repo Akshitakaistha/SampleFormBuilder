@@ -1,36 +1,15 @@
-
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string) => Promise<any>;
-  register: (username: string, email: string, password: string) => Promise<any>;
-  logout: () => void;
-}
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
 // Create the context
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext(null);
 
 // Auth provider component
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -71,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
   
   // Login function
-  const login = async (username: string, password: string) => {
+  const login = async (username, password) => {
     try {
       setLoading(true);
       const response = await apiRequest('POST', '/api/auth/login', { username, password });
@@ -91,14 +70,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return data;
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : 'Login failed');
+      throw new Error(error.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
   
   // Register function
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (username, email, password) => {
     try {
       setLoading(true);
       const response = await apiRequest('POST', '/api/auth/register', { 
@@ -123,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return data;
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : 'Registration failed');
+      throw new Error(error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -142,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
   
   // Context value
-  const value: AuthContextType = {
+  const value = {
     user,
     isAuthenticated: !!user,
     isLoading: loading,
@@ -159,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 };
 
 // Custom hook to use the auth context
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
