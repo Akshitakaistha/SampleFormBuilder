@@ -47,7 +47,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
               {hasBannerComponent ? (
                 <div>
                   {/* Banner section */}
-                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-screen w-full'} relative`}>
+                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full min-h-[600px] md:min-h-screen'} relative`}>
                     {bannerField?.bannerUrl ? (
                       <div className="w-full h-full">
                         <img 
@@ -57,16 +57,21 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                         />
                         {bannerField?.canUpload && (
                           <div className="absolute bottom-0 right-0 m-4">
-                            <button
+                            <input
                               type="button"
+                              value="Change Banner"
                               className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 bg-opacity-90"
-                              onClick={() => {
-                                // Programmatically trigger the file input
-                                document.getElementById(`change-banner-${bannerField.id}`)?.click();
+                              onClick={(e) => {
+                                e.preventDefault();
+                                // Direct approach - open file selector
+                                const fileInput = document.getElementById(`change-banner-${bannerField.id}`);
+                                if (fileInput) {
+                                  fileInput.click();
+                                } else {
+                                  console.error(`Could not find file input with id change-banner-${bannerField.id}`);
+                                }
                               }}
-                            >
-                              Change Banner
-                            </button>
+                            />
                             <input 
                               id={`change-banner-${bannerField.id}`}
                               type="file" 
@@ -99,16 +104,21 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                         <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Event Banner'}</p>
                         <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'This form includes a banner image'}</p>
                         <div className="mt-4">
-                          <button 
+                          <input 
                             type="button"
+                            value="Upload Banner"
                             className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                            onClick={() => {
-                              // Programmatically trigger the file input
-                              document.getElementById(`upload-banner-${bannerField.id}`)?.click();
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Direct approach - open file selector
+                              const fileInput = document.getElementById(`upload-banner-${bannerField.id}`);
+                              if (fileInput) {
+                                fileInput.click();
+                              } else {
+                                console.error(`Could not find file input with id upload-banner-${bannerField.id}`);
+                              }
                             }}
-                          >
-                            Upload Banner
-                          </button>
+                          />
                           <input 
                             id={`upload-banner-${bannerField.id}`}
                             type="file" 
