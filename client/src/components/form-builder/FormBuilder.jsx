@@ -67,6 +67,16 @@ const FormBuilder = ({ formId }) => {
 
   const handleSaveDraft = useCallback(async () => {
     try {
+      // Validate that form has at least one field
+      if (!formState.fields || formState.fields.length === 0) {
+        toast({
+          title: 'Warning',
+          description: 'Please add at least one field to your form before saving.',
+          variant: 'warning'
+        });
+        return;
+      }
+
       const formData = {
         name: formState.name || 'Untitled Form',
         description: formState.description || '',
@@ -74,56 +84,117 @@ const FormBuilder = ({ formId }) => {
         status: 'draft'
       };
 
+      console.log("Saving form data:", JSON.stringify(formData));
+
       if (formId) {
         // Update existing form
-        await apiRequest('PUT', `/api/forms/${formId}`, formData);
+        console.log("Updating existing form with ID:", formId);
+        const response = await fetch(`/api/forms/${formId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to update form: ${response.statusText}`);
+        }
+
         toast({
           title: 'Success',
           description: 'Form saved as draft successfully',
         });
       } else {
         // Create new form
-        const response = await apiRequest('POST', '/api/forms', formData);
-        const newForm = await response.json();
+        console.log("Creating new form");
+        const response = await fetch('/api/forms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
 
+        if (!response.ok) {
+          throw new Error(`Failed to create form: ${response.statusText}`);
+        }
+
+        const newForm = await response.json();
+        console.log("New form created:", newForm);
+        
         // Update state with new form ID
         setFormState(prev => ({
           ...prev,
           id: newForm.id
         }));
-
+        
         toast({
           title: 'Success',
           description: 'Form created and saved as draft',
         });
       }
-
+      
       // Invalidate forms cache
       queryClient.invalidateQueries({ queryKey: ['/api/forms'] });
     } catch (error) {
+      console.error("Error saving form:", error);
       toast({
         title: 'Error',
-        description: 'Failed to save form. Please try again.',
+        description: `Failed to save form: ${error.message}`,
         variant: 'destructive'
       });
     }
-  }, [formId, formState, setFormState, apiRequest, queryClient, toast]);
+  }, [formId, formState, setFormState, toast, queryClient]);
 
   const handlePublish = useCallback(async () => {
     try {
+      // Validate that form has at least one field
+      if (!formState.fields || formState.fields.length === 0) {
+        toast({
+          title: 'Warning',
+          description: 'Please add at least one field to your form before publishing.',
+          variant: 'warning'
+        });
+        return;
+      }
+
       // First save the form
       const formData = {
         name: formState.name || 'Untitled Form',
         description: formState.description || '',
-        schema: { fields: formState.fields }
+        schema: { fields: formState.fields },
+        status: 'draft'
       };
 
+      console.log("Publishing form data:", JSON.stringify(formData));
+      
       let formToPublish = formId;
 
       if (!formId) {
         // Create new form first
-        const response = await apiRequest('POST', '/api/forms', formData);
+        console.log("Creating new form before publishing");
+        const response = await fetch('/api/forms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to create form: ${response.statusText}`);
+        }
+
         const newForm = await response.json();
+        console.log("New form created before publishing:", newForm);
+        
         formToPublish = newForm.id;
 
         // Update state with new form ID
@@ -133,12 +204,39 @@ const FormBuilder = ({ formId }) => {
         }));
       } else {
         // Update existing form
-        await apiRequest('PUT', `/api/forms/${formId}`, formData);
+        console.log("Updating existing form with ID:", formId);
+        const response = await fetch(`/api/forms/${formId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to update form: ${response.statusText}`);
+        }
       }
 
       // Then publish the form
-      const publishResponse = await apiRequest('POST', `/api/forms/${formToPublish}/publish`);
+      console.log("Publishing form with ID:", formToPublish);
+      const publishResponse = await fetch(`/api/forms/${formToPublish}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include'
+      });
+
+      if (!publishResponse.ok) {
+        throw new Error(`Failed to publish form: ${publishResponse.statusText}`);
+      }
+
       const publishedForm = await publishResponse.json();
+      console.log("Form published successfully:", publishedForm);
 
       // Update form state with published status and URL
       setFormState(prev => ({
@@ -153,13 +251,14 @@ const FormBuilder = ({ formId }) => {
       // Show publish success modal
       setShowPublishModal(true);
     } catch (error) {
+      console.error("Error publishing form:", error);
       toast({
         title: 'Error',
-        description: 'Failed to publish form. Please try again.',
+        description: `Failed to publish form: ${error.message}`,
         variant: 'destructive'
       });
     }
-  }, [formId, formState, setFormState, apiRequest, queryClient, toast, setShowPublishModal]);
+  }, [formId, formState, setFormState, queryClient, toast, setShowPublishModal]);
 
   const handlePreview = () => {
     setShowPreviewModal(true);
