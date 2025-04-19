@@ -386,27 +386,27 @@ const PropertyEditor = () => {
                   className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-xs"
                 />
               </div>
-              <div className="flex items-center">
-                <input 
-                  id="hide-label" 
-                  type="checkbox"
-                  name="hideLabel"
-                  checked={activeField.hideLabel || false}
-                  onChange={handleInputChange}
-                  className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
-                />
-                <label htmlFor="hide-label" className="ml-2 block text-xs text-gray-700">Hide Label</label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs text-gray-700">Hide Label</label>
+                <div className="ml-2">
+                  <Switch
+                    checked={activeField.hideLabel || false}
+                    onCheckedChange={(checked) => {
+                      updateFieldProperties(activeField.id, { hideLabel: checked });
+                    }}
+                  />
+                </div>
               </div>
-              <div className="flex items-center">
-                <input 
-                  id="read-only" 
-                  type="checkbox"
-                  name="readOnly"
-                  checked={activeField.readOnly || false}
-                  onChange={handleInputChange}
-                  className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
-                />
-                <label htmlFor="read-only" className="ml-2 block text-xs text-gray-700">Read Only Field</label>
+              <div className="flex items-center justify-between mt-2">
+                <label className="block text-xs text-gray-700">Read Only Field</label>
+                <div className="ml-2">
+                  <Switch
+                    checked={activeField.readOnly || false}
+                    onCheckedChange={(checked) => {
+                      updateFieldProperties(activeField.id, { readOnly: checked });
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
