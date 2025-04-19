@@ -422,8 +422,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Form submission routes
-  app.post("/api/forms/:id/submit", async (req, res) => {
+  // Form submission routes with file upload support
+  app.post("/api/forms/:id/submit", upload.any(), async (req, res) => {
     try {
       const formId = req.params.id;
       const form = await storage.getForm(formId);
@@ -432,14 +432,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Form not found or not published" });
       }
       
+      // Process form data
+      let formData = {};
+      
+      // Process regular form fields
+      if (req.body.data) {
+        // Parse each data field since they're sent as JSON strings
+        Object.keys(req.body.data || {}).forEach(key => {
+          try {
+            formData[key] = JSON.parse(req.body.data[key]);
+          } catch (e) {
+            formData[key] = req.body.data[key];
+          }
+        });
+      }
+      
+      // Create submission record first
       const submissionData = insertSubmissionSchema.parse({
         formId,
-        data: req.body
+        data: formData
       });
       
       const submission = await storage.createSubmission(submissionData);
+      
+      // Process files if any
+      const files = req.files as Express.Multer.File[];
+      const fileMetadata = req.body.fileData || {};
+      
+      if (files && files.length > 0) {
+        console.log("Processing uploaded files:", files.length);
+        
+        for (const file of files) {
+          // Extract field ID from the field name (files[fieldId])
+          const fieldMatch = file.fieldname.match(/files\[(.*?)\]/);
+          if (fieldMatch && fieldMatch[1]) {
+            const fieldId = fieldMatch[1];
+            let metadata = {};
+            
+            try {
+              if (fileMetadata[fieldId]) {
+                metadata = JSON.parse(fileMetadata[fieldId]);
+              }
+            } catch (e) {
+              console.error("Error parsing file metadata:", e);
+            }
+            
+            // Create file upload record
+            const fileUploadData = {
+              submissionId: submission.id,
+              fieldId,
+              fileName: file.originalname,
+              fileType: file.mimetype,
+              filePath: file.path,
+              fileSize: file.size,
+              metadata: metadata
+            };
+            
+            await storage.createFileUpload(fileUploadData);
+          }
+        }
+      }
+      
       return res.status(201).json(submission);
     } catch (error) {
+      console.error("Form submission error:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Validation error", errors: error.errors });
       }
