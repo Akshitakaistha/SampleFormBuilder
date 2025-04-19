@@ -173,37 +173,40 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <div className="flex flex-col text-sm text-gray-600 justify-center">
-                  <label htmlFor={`file-upload-${field.id}`} className="cursor-pointer mx-auto mb-2">
-                    <span className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                      Select a file
-                    </span>
-                    <input 
-                      id={`file-upload-${field.id}`} 
-                      name={`file-upload-${field.id}`} 
-                      type="file" 
-                      className="hidden"
-                      disabled={!isPreview}
-                      onClick={(e) => {
-                        // Ensure the click event propagates to the file input
-                        e.stopPropagation();
-                      }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          console.log("File selected:", file.name);
-                          // Create a preview URL for display
-                          const fileData = {
-                            file: file,
-                            fileName: file.name,
-                            previewUrl: URL.createObjectURL(file)
-                          };
-                          if (onChange) onChange(field.id, fileData);
-                        }
-                      }}
-                      required={field.required}
-                      accept={field.allowedTypes || "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
-                    />
-                  </label>
+                  <button 
+                    type="button"
+                    className="cursor-pointer mx-auto mb-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    onClick={() => {
+                      if (isPreview) {
+                        // Programmatically trigger the file input
+                        document.getElementById(`file-upload-${field.id}`)?.click();
+                      }
+                    }}
+                  >
+                    Select a file
+                  </button>
+                  <input 
+                    id={`file-upload-${field.id}`} 
+                    name={`file-upload-${field.id}`} 
+                    type="file" 
+                    className="hidden"
+                    disabled={!isPreview}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        console.log("File selected:", file.name);
+                        // Create a preview URL for display
+                        const fileData = {
+                          file: file,
+                          fileName: file.name,
+                          previewUrl: URL.createObjectURL(file)
+                        };
+                        if (onChange) onChange(field.id, fileData);
+                      }
+                    }}
+                    required={field.required}
+                    accept={field.allowedTypes || "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+                  />
                   <p className="text-sm text-center text-gray-500">or drag and drop your file here</p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -301,38 +304,41 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex flex-col text-sm text-gray-600 justify-center">
-                  <label htmlFor={`media-upload-${field.id}`} className="cursor-pointer mx-auto mb-2">
-                    <span className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                      Select media file
-                    </span>
-                    <input 
-                      id={`media-upload-${field.id}`} 
-                      name={`media-upload-${field.id}`} 
-                      type="file" 
-                      className="hidden"
-                      disabled={!isPreview}
-                      onClick={(e) => {
-                        // Ensure the click event propagates to the file input
-                        e.stopPropagation();
-                      }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          console.log("Media file selected:", file.name, file.type);
-                          // Create a preview URL for display
-                          const fileData = {
-                            file: file,
-                            fileName: file.name,
-                            fileType: file.type,
-                            previewUrl: URL.createObjectURL(file)
-                          };
-                          if (onChange) onChange(field.id, fileData);
-                        }
-                      }}
-                      required={field.required}
-                      accept={field.allowedTypes || "audio/*,video/*"}
-                    />
-                  </label>
+                  <button 
+                    type="button"
+                    className="cursor-pointer mx-auto mb-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    onClick={() => {
+                      if (isPreview) {
+                        // Programmatically trigger the file input
+                        document.getElementById(`media-upload-${field.id}`)?.click();
+                      }
+                    }}
+                  >
+                    Select media file
+                  </button>
+                  <input 
+                    id={`media-upload-${field.id}`} 
+                    name={`media-upload-${field.id}`} 
+                    type="file" 
+                    className="hidden"
+                    disabled={!isPreview}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        console.log("Media file selected:", file.name, file.type);
+                        // Create a preview URL for display
+                        const fileData = {
+                          file: file,
+                          fileName: file.name,
+                          fileType: file.type,
+                          previewUrl: URL.createObjectURL(file)
+                        };
+                        if (onChange) onChange(field.id, fileData);
+                      }
+                    }}
+                    required={field.required}
+                    accept={field.allowedTypes || "audio/*,video/*"}
+                  />
                   <p className="text-sm text-center text-gray-500">or drag and drop your media file here</p>
                 </div>
                 <p className="text-xs text-gray-500">

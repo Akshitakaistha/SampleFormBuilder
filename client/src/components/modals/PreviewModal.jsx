@@ -47,7 +47,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
               {hasBannerComponent ? (
                 <div>
                   {/* Banner section */}
-                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-[400px] w-full'} relative`}>
+                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-screen w-full'} relative`}>
                     {bannerField?.bannerUrl ? (
                       <div className="w-full h-full">
                         <img 
@@ -57,54 +57,21 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                         />
                         {bannerField?.canUpload && (
                           <div className="absolute bottom-0 right-0 m-4">
-                            <label className="cursor-pointer inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 bg-opacity-90">
-                              <span>Change Banner</span>
-                              <input 
-                                type="file" 
-                                className="hidden" 
-                                accept="image/*"
-                                onClick={(e) => {
-                                  // Ensure the click event propagates to the file input
-                                  e.stopPropagation();
-                                }}
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      if (event.target?.result) {
-                                        // Update the local state with the new image
-                                        handleFormValueChange(bannerField.id, {
-                                          file: file,
-                                          preview: event.target.result
-                                        });
-                                        console.log("Banner would be uploaded:", file.name);
-                                      }
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }} 
-                              />
-                            </label>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="bg-gray-50 border-b md:border-r border-gray-200 h-full p-6 flex flex-col items-center justify-center">
-                        <Icons.BannerUpload className="h-12 w-12 text-gray-400" />
-                        <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Event Banner'}</p>
-                        <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'This form includes a banner image'}</p>
-                        <div className="mt-4">
-                          <label className="cursor-pointer inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            <span>Upload Banner</span>
+                            <button
+                              type="button"
+                              className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 bg-opacity-90"
+                              onClick={() => {
+                                // Programmatically trigger the file input
+                                document.getElementById(`change-banner-${bannerField.id}`)?.click();
+                              }}
+                            >
+                              Change Banner
+                            </button>
                             <input 
+                              id={`change-banner-${bannerField.id}`}
                               type="file" 
                               className="hidden" 
                               accept="image/*"
-                              onClick={(e) => {
-                                // Ensure the click event propagates to the file input
-                                e.stopPropagation();
-                              }}
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
@@ -121,9 +88,50 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                                   };
                                   reader.readAsDataURL(file);
                                 }
-                              }}
+                              }} 
                             />
-                          </label>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 border-b md:border-r border-gray-200 h-full p-6 flex flex-col items-center justify-center">
+                        <Icons.BannerUpload className="h-12 w-12 text-gray-400" />
+                        <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Event Banner'}</p>
+                        <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'This form includes a banner image'}</p>
+                        <div className="mt-4">
+                          <button 
+                            type="button"
+                            className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                            onClick={() => {
+                              // Programmatically trigger the file input
+                              document.getElementById(`upload-banner-${bannerField.id}`)?.click();
+                            }}
+                          >
+                            Upload Banner
+                          </button>
+                          <input 
+                            id={`upload-banner-${bannerField.id}`}
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  if (event.target?.result) {
+                                    // Update the local state with the new image
+                                    handleFormValueChange(bannerField.id, {
+                                      file: file,
+                                      preview: event.target.result
+                                    });
+                                    console.log("Banner would be uploaded:", file.name);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
                         </div>
                       </div>
                     )}
