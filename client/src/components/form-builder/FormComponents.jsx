@@ -172,15 +172,21 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <div className="flex text-sm text-gray-600 justify-center">
-                  <label htmlFor={`file-upload-${field.id}`} className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                    <span>Upload a file</span>
+                <div className="flex flex-col text-sm text-gray-600 justify-center">
+                  <label htmlFor={`file-upload-${field.id}`} className="cursor-pointer mx-auto mb-2">
+                    <span className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                      Select a file
+                    </span>
                     <input 
                       id={`file-upload-${field.id}`} 
                       name={`file-upload-${field.id}`} 
                       type="file" 
-                      className="sr-only"
+                      className="hidden"
                       disabled={!isPreview}
+                      onClick={(e) => {
+                        // Ensure the click event propagates to the file input
+                        e.stopPropagation();
+                      }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
@@ -198,7 +204,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       accept={field.allowedTypes || "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
                     />
                   </label>
-                  <p className="pl-1">or drag and drop</p>
+                  <p className="text-sm text-center text-gray-500">or drag and drop your file here</p>
                 </div>
                 <p className="text-xs text-gray-500">
                   {field.fileTypeText || 'PNG, JPG, PDF, DOC up to 10MB'}
@@ -294,15 +300,21 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div className="flex text-sm text-gray-600 justify-center">
-                  <label htmlFor={`media-upload-${field.id}`} className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                    <span>Upload media</span>
+                <div className="flex flex-col text-sm text-gray-600 justify-center">
+                  <label htmlFor={`media-upload-${field.id}`} className="cursor-pointer mx-auto mb-2">
+                    <span className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                      Select media file
+                    </span>
                     <input 
                       id={`media-upload-${field.id}`} 
                       name={`media-upload-${field.id}`} 
                       type="file" 
-                      className="sr-only"
+                      className="hidden"
                       disabled={!isPreview}
+                      onClick={(e) => {
+                        // Ensure the click event propagates to the file input
+                        e.stopPropagation();
+                      }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
@@ -321,7 +333,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       accept={field.allowedTypes || "audio/*,video/*"}
                     />
                   </label>
-                  <p className="pl-1">or drag and drop</p>
+                  <p className="text-sm text-center text-gray-500">or drag and drop your media file here</p>
                 </div>
                 <p className="text-xs text-gray-500">
                   {field.mediaTypeText || 'MP3, WAV, MP4, MOV up to 10MB'}
