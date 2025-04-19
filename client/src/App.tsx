@@ -14,7 +14,7 @@ import Register from "@/pages/Register";
 import { useAuth, AuthProvider } from "./contexts/AuthContext";
 import { FormBuilderProvider } from "./contexts/FormBuilderContext";
 
-function PrivateRoute({ component, ...rest }) {
+function PrivateRoute({ component }: { component: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   
   // Show loading indicator while checking authentication
@@ -30,7 +30,7 @@ function PrivateRoute({ component, ...rest }) {
     return <Login />;
   }
   
-  return component;
+  return <>{component}</>;
 }
 
 function Router() {
