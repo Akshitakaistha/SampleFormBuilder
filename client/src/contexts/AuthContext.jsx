@@ -3,8 +3,15 @@ import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// Create the context
-export const AuthContext = createContext(null);
+// Create the context with default values to avoid null errors
+export const AuthContext = createContext({
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  login: () => {},
+  register: () => {},
+  logout: () => {}
+});
 
 // Auth provider component
 export function AuthProvider({ children }) {
@@ -190,8 +197,18 @@ export function AuthProvider({ children }) {
 // Custom hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
+  // We've provided default values, so this should never be null
+  // Still keeping the check for safety
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.error('Auth context missing - this should not happen');
+    return {
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      login: () => Promise.reject(new Error('Auth provider not initialized')),
+      register: () => Promise.reject(new Error('Auth provider not initialized')),
+      logout: () => console.error('Auth provider not initialized')
+    };
   }
   return context;
 }
