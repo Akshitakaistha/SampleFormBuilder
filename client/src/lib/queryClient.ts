@@ -42,6 +42,19 @@ export async function apiRequest(
 
     await throwIfResNotOk(res);
     const jsonData = await res.json().catch(() => ({}));
+    
+    // Check if the response has MongoDB document format with $_doc property
+    if (jsonData && jsonData.$__?.activePaths && jsonData._doc) {
+      console.log("Converting MongoDB document to plain object");
+      return jsonData._doc;
+    }
+    
+    // Check if the response is an array of MongoDB documents
+    if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0]?.$__?.activePaths && jsonData[0]?._doc) {
+      console.log("Converting array of MongoDB documents to plain objects");
+      return jsonData.map(item => item._doc);
+    }
+    
     return jsonData;
   } catch (error) {
     console.error("API request failed:", error);
@@ -73,7 +86,21 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    const jsonData = await res.json();
+    
+    // Check if the response has MongoDB document format with $_doc property
+    if (jsonData && jsonData.$__?.activePaths && jsonData._doc) {
+      console.log("Query converting MongoDB document to plain object");
+      return jsonData._doc;
+    }
+    
+    // Check if the response is an array of MongoDB documents
+    if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0]?.$__?.activePaths && jsonData[0]?._doc) {
+      console.log("Query converting array of MongoDB documents to plain objects");
+      return jsonData.map(item => item._doc);
+    }
+    
+    return jsonData;
   };
 
 export const queryClient = new QueryClient({

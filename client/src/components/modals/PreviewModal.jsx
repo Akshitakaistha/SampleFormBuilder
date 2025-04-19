@@ -131,7 +131,10 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                             </>
                           )}
                           <FormComponents 
-                            field={field} 
+                            field={{
+                              ...field,
+                              value: formValues[field.id] !== undefined ? formValues[field.id] : field.defaultValue
+                            }} 
                             isPreview={true} 
                             onChange={handleFormValueChange}
                           />
@@ -162,7 +165,10 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                           </>
                         )}
                         <FormComponents 
-                          field={field} 
+                          field={{
+                            ...field,
+                            value: formValues[field.id] !== undefined ? formValues[field.id] : field.defaultValue
+                          }} 
                           isPreview={true} 
                           onChange={handleFormValueChange}
                         />
