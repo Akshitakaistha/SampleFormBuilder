@@ -77,11 +77,23 @@ const FormBuilder = ({ formId }) => {
         return;
       }
 
+      // Get current user to ensure we're authenticated and have user data
+      const userData = await apiRequest({
+        method: 'GET',
+        url: '/api/auth/me'
+      });
+      
+      if (!userData) {
+        throw new Error("Not authenticated");
+      }
+      
+      // Include userId explicitly in form data
       const formData = {
         name: formState.name || 'Untitled Form',
         description: formState.description || '',
         schema: { fields: formState.fields },
-        status: 'draft'
+        status: 'draft',
+        userId: userData._id || userData.id
       };
 
       console.log("Saving form data:", JSON.stringify(formData));
@@ -158,12 +170,23 @@ const FormBuilder = ({ formId }) => {
         return;
       }
 
-      // First save the form
+      // Get current user to ensure we're authenticated and have user data
+      const userData = await apiRequest({
+        method: 'GET',
+        url: '/api/auth/me'
+      });
+      
+      if (!userData) {
+        throw new Error("Not authenticated");
+      }
+      
+      // First save the form - include userId explicitly
       const formData = {
         name: formState.name || 'Untitled Form',
         description: formState.description || '',
         schema: { fields: formState.fields },
-        status: 'draft'
+        status: 'draft',
+        userId: userData._id || userData.id
       };
 
       console.log("Publishing form data:", JSON.stringify(formData));

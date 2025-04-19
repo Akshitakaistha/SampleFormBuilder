@@ -47,7 +47,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
               {hasBannerComponent ? (
                 <div>
                   {/* Banner section */}
-                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-[400px]'} relative`}>
+                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-[400px] w-full'} relative`}>
                     {bannerField?.bannerUrl ? (
                       <div className="w-full h-full">
                         <img 
@@ -120,7 +120,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                   </div>
                   
                   {/* Form fields section */}
-                  <div className={`${bannerField?.position === 'top' ? 'w-full' : 'md:ml-1/3'} p-6`}>
+                  <div className={`${bannerField?.position === 'top' ? 'w-full' : 'md:float-right md:w-2/3'} p-6`}>
                     <div className="space-y-6">
                       {regularFields.map(field => (
                         <div key={field.id} className={`form-field ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
