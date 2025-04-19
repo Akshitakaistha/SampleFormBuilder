@@ -89,54 +89,49 @@ const FormBuilder = ({ formId }) => {
       if (formId) {
         // Update existing form
         console.log("Updating existing form with ID:", formId);
-        const response = await fetch(`/api/forms/${formId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to update form: ${response.statusText}`);
+        try {
+          const response = await apiRequest({
+            url: `/api/forms/${formId}`,
+            method: 'PUT',
+            data: formData
+          });
+          
+          console.log("Form update response:", response);
+          
+          toast({
+            title: 'Success',
+            description: 'Form saved as draft successfully',
+          });
+        } catch (apiError) {
+          console.error("API error updating form:", apiError);
+          throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
         }
-
-        toast({
-          title: 'Success',
-          description: 'Form saved as draft successfully',
-        });
       } else {
         // Create new form
         console.log("Creating new form");
-        const response = await fetch('/api/forms', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to create form: ${response.statusText}`);
+        try {
+          const response = await apiRequest({
+            url: '/api/forms',
+            method: 'POST',
+            data: formData
+          });
+          
+          console.log("New form created:", response);
+          
+          // Update state with new form ID
+          setFormState(prev => ({
+            ...prev,
+            id: response.id
+          }));
+          
+          toast({
+            title: 'Success',
+            description: 'Form created and saved as draft',
+          });
+        } catch (apiError) {
+          console.error("API error creating form:", apiError);
+          throw new Error(`Failed to create form: ${apiError.message || 'Unknown error'}`);
         }
-
-        const newForm = await response.json();
-        console.log("New form created:", newForm);
-        
-        // Update state with new form ID
-        setFormState(prev => ({
-          ...prev,
-          id: newForm.id
-        }));
-        
-        toast({
-          title: 'Success',
-          description: 'Form created and saved as draft',
-        });
       }
       
       // Invalidate forms cache
@@ -178,78 +173,67 @@ const FormBuilder = ({ formId }) => {
       if (!formId) {
         // Create new form first
         console.log("Creating new form before publishing");
-        const response = await fetch('/api/forms', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to create form: ${response.statusText}`);
+        try {
+          const newForm = await apiRequest({
+            url: '/api/forms',
+            method: 'POST',
+            data: formData
+          });
+          
+          console.log("New form created before publishing:", newForm);
+          
+          formToPublish = newForm.id;
+  
+          // Update state with new form ID
+          setFormState(prev => ({
+            ...prev,
+            id: newForm.id
+          }));
+        } catch (apiError) {
+          console.error("API error creating form:", apiError);
+          throw new Error(`Failed to create form: ${apiError.message || 'Unknown error'}`);
         }
-
-        const newForm = await response.json();
-        console.log("New form created before publishing:", newForm);
-        
-        formToPublish = newForm.id;
-
-        // Update state with new form ID
-        setFormState(prev => ({
-          ...prev,
-          id: newForm.id
-        }));
       } else {
         // Update existing form
         console.log("Updating existing form with ID:", formId);
-        const response = await fetch(`/api/forms/${formId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to update form: ${response.statusText}`);
+        try {
+          await apiRequest({
+            url: `/api/forms/${formId}`,
+            method: 'PUT',
+            data: formData
+          });
+        } catch (apiError) {
+          console.error("API error updating form:", apiError);
+          throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
         }
       }
 
       // Then publish the form
       console.log("Publishing form with ID:", formToPublish);
-      const publishResponse = await fetch(`/api/forms/${formToPublish}/publish`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        credentials: 'include'
-      });
+      try {
+        const publishedForm = await apiRequest({
+          url: `/api/forms/${formToPublish}/publish`,
+          method: 'POST'
+        });
+        
+        console.log("Form published successfully:", publishedForm);
 
-      if (!publishResponse.ok) {
-        throw new Error(`Failed to publish form: ${publishResponse.statusText}`);
+        // Update form state with published status and URL
+        setFormState(prev => ({
+          ...prev,
+          status: 'published',
+          publishedUrl: publishedForm.publishedUrl
+        }));
+
+        // Invalidate forms cache
+        queryClient.invalidateQueries({ queryKey: ['/api/forms'] });
+
+        // Show publish success modal
+        setShowPublishModal(true);
+      } catch (apiError) {
+        console.error("API error publishing form:", apiError);
+        throw new Error(`Failed to publish form: ${apiError.message || 'Unknown error'}`);
       }
-
-      const publishedForm = await publishResponse.json();
-      console.log("Form published successfully:", publishedForm);
-
-      // Update form state with published status and URL
-      setFormState(prev => ({
-        ...prev,
-        status: 'published',
-        publishedUrl: publishedForm.publishedUrl
-      }));
-
-      // Invalidate forms cache
-      queryClient.invalidateQueries({ queryKey: ['/api/forms'] });
-
-      // Show publish success modal
-      setShowPublishModal(true);
     } catch (error) {
       console.error("Error publishing form:", error);
       toast({
