@@ -6,6 +6,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
   const [formValues, setFormValues] = useState({});
   
   const handleFormValueChange = (fieldId, value) => {
+    console.log("Value changed for field:", fieldId, value);
     setFormValues(prev => ({
       ...prev,
       [fieldId]: value

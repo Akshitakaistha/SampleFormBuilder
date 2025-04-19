@@ -128,8 +128,11 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
       return (
         <div className="mt-2 flex items-center">
           <Switch
-            checked={field.defaultChecked || false}
-            onCheckedChange={(checked) => onChange(field.id, checked)}
+            checked={field.value !== undefined ? field.value : field.defaultChecked || false}
+            onCheckedChange={(checked) => {
+              console.log("Toggle switched:", checked);
+              if (onChange) onChange(field.id, checked);
+            }}
             disabled={!isPreview}
           />
           <span className="ml-2 text-sm text-gray-700">{field.toggleLabel || 'Enable'}</span>
