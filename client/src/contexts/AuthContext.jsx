@@ -20,22 +20,29 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         
         if (token) {
+          console.log('Checking auth status with token');
           // Validate token by fetching user profile
-          const response = await fetch('/api/auth/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            credentials: 'include'
-          });
-          
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            // Invalid token, remove it
+          try {
+            const userData = await apiRequest({
+              method: 'GET',
+              url: '/api/auth/me'
+            });
+            
+            console.log('Auth check response:', userData);
+            if (userData) {
+              setUser(userData);
+            } else {
+              // Invalid token, remove it
+              localStorage.removeItem('token');
+              setUser(null);
+            }
+          } catch (error) {
+            console.error('Auth check request failed:', error);
             localStorage.removeItem('token');
             setUser(null);
           }
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -53,23 +60,40 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setLoading(true);
-      const response = await apiRequest('POST', '/api/auth/login', { username, password });
-      const data = await response.json();
+      console.log('Attempting login for:', username);
       
-      // Store token and user data
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      
-      // Redirect to dashboard
-      setLocation('/');
-      
-      toast({
-        title: 'Success',
-        description: 'You have successfully logged in.',
+      const data = await apiRequest({
+        method: 'POST',
+        url: '/api/auth/login',
+        data: { username, password }
       });
       
-      return data;
+      console.log('Login response:', data);
+      
+      // Store token and user data
+      if (data && data.token) {
+        localStorage.setItem('token', data.token);
+        setUser(data.user || data);
+        
+        // Redirect to dashboard
+        setLocation('/');
+        
+        toast({
+          title: 'Success',
+          description: 'You have successfully logged in.',
+        });
+        
+        return data;
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: 'Login Failed',
+        description: error.message || 'Please check your credentials and try again.',
+        variant: 'destructive',
+      });
       throw new Error(error.message || 'Login failed');
     } finally {
       setLoading(false);
@@ -80,28 +104,45 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, email, password) => {
     try {
       setLoading(true);
-      const response = await apiRequest('POST', '/api/auth/register', { 
-        username, 
-        email, 
-        password,
-        role: 'admin' // Default role for self-registration
+      console.log('Attempting registration for:', username);
+      
+      const data = await apiRequest({
+        method: 'POST',
+        url: '/api/auth/register',
+        data: { 
+          username, 
+          email, 
+          password,
+          role: 'admin' // Default role for self-registration
+        }
       });
-      const data = await response.json();
+      
+      console.log('Registration response:', data);
       
       // Store token and user data
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      
-      // Redirect to dashboard
-      setLocation('/');
-      
-      toast({
-        title: 'Success',
-        description: 'Account created successfully!',
-      });
-      
-      return data;
+      if (data && data.token) {
+        localStorage.setItem('token', data.token);
+        setUser(data.user || data);
+        
+        // Redirect to dashboard
+        setLocation('/');
+        
+        toast({
+          title: 'Success',
+          description: 'Account created successfully!',
+        });
+        
+        return data;
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: 'Registration Failed',
+        description: error.message || 'Please try again with different credentials.',
+        variant: 'destructive',
+      });
       throw new Error(error.message || 'Registration failed');
     } finally {
       setLoading(false);

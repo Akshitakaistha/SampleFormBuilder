@@ -28,9 +28,11 @@ const LoginForm = () => {
   
   const onSubmit = async (data) => {
     try {
+      console.log('Form submission:', data);
       await login(data.username, data.password);
       // Successful login handled in AuthContext
     } catch (error) {
+      console.error('Login form error:', error);
       toast({
         title: 'Login failed',
         description: error.message || 'Please check your credentials and try again.',
