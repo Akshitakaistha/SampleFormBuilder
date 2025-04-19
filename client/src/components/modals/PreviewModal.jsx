@@ -24,76 +24,69 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
   const regularFields = formFields.filter(field => field.type !== 'bannerUpload');
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full md:max-w-2xl">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="sm:flex sm:items-start">
-              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Form Preview: {formName}
-                </h3>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    This is how your form will appear to users.
-                  </p>
-                </div>
-                <form onSubmit={handleSubmit} className="mt-4 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  {hasBannerComponent ? (
-                    <div className="flex flex-col md:flex-row">
-                      {/* Banner section */}
-                      <div className="md:w-1/3 p-4 border-b md:border-b-0 md:border-r border-gray-200">
-                        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center h-full">
-                          <Icons.BannerUpload />
-                          <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Upload event banner'}</p>
-                          <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'PNG, JPG, GIF up to 10MB'}</p>
-                          <button className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                            Upload Banner
-                          </button>
-                        </div>
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div className="relative min-h-screen">
+        {/* Header bar */}
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Form Preview: {formName}</h2>
+          <button 
+            type="button"
+            onClick={onClose}
+            className="ml-auto flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <Icons.X className="h-5 w-5 mr-1" />
+            Close Preview
+          </button>
+        </div>
+
+        {/* Main content */}
+        <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <form onSubmit={handleSubmit} className="w-full">
+              {hasBannerComponent ? (
+                <div>
+                  {/* Banner section */}
+                  <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full md:min-h-[400px]'} relative`}>
+                    {bannerField?.bannerUrl ? (
+                      <img 
+                        src={bannerField.bannerUrl} 
+                        alt="Form Banner" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-gray-50 border-b md:border-r border-gray-200 h-full p-6 flex flex-col items-center justify-center">
+                        <Icons.BannerUpload className="h-12 w-12 text-gray-400" />
+                        <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Event Banner'}</p>
+                        <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'This form includes a banner image'}</p>
+                        <label className="mt-4 cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                          Upload Banner
+                          <input type="file" className="sr-only" accept="image/*" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                if (event.target?.result) {
+                                  // In a real app, this would upload the file to a server
+                                  console.log("File would be uploaded:", file.name);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} />
+                        </label>
                       </div>
-                      
-                      {/* Form fields section */}
-                      <div className="md:w-2/3 p-4">
-                        <div className="space-y-4">
-                          {regularFields.map(field => (
-                            <div key={field.id}>
-                              {!field.hideLabel && (
-                                <>
-                                  <label className="block text-sm font-medium text-gray-700">{field.label || `Untitled ${field.type}`}</label>
-                                  {field.helperText && <p className="text-xs text-gray-500">{field.helperText}</p>}
-                                </>
-                              )}
-                              <FormComponents 
-                                field={field} 
-                                isPreview={true} 
-                                onChange={handleFormValueChange}
-                              />
-                            </div>
-                          ))}
-                          
-                          {/* Form submit button */}
-                          <div className="pt-4">
-                            <button
-                              type="submit"
-                              className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                            >
-                              Submit Form
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {formFields.map(field => (
-                        <div key={field.id}>
+                    )}
+                  </div>
+                  
+                  {/* Form fields section */}
+                  <div className={`${bannerField?.position === 'top' ? 'w-full' : 'md:ml-1/3'} p-6`}>
+                    <div className="space-y-6">
+                      {regularFields.map(field => (
+                        <div key={field.id} className={`form-field ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
                           {!field.hideLabel && (
                             <>
-                              <label className="block text-sm font-medium text-gray-700">{field.label || `Untitled ${field.type}`}</label>
-                              {field.helperText && <p className="text-xs text-gray-500">{field.helperText}</p>}
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{field.label || `Untitled ${field.type}`}</label>
+                              {field.helperText && <p className="text-xs text-gray-500 mb-1">{field.helperText}</p>}
                             </>
                           )}
                           <FormComponents 
@@ -105,28 +98,49 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                       ))}
                       
                       {/* Form submit button */}
-                      <div className="pt-4">
+                      <div className="pt-6">
                         <button
                           type="submit"
-                          className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                         >
                           Submit Form
                         </button>
                       </div>
                     </div>
-                  )}
-                </form>
-              </div>
-            </div>
-          </div>
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button 
-              type="button" 
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              onClick={onClose}
-            >
-              Close
-            </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {formFields.map(field => (
+                      <div key={field.id} className={field.gridColumn === 'half' ? 'col-span-1' : 'col-span-2'}>
+                        {!field.hideLabel && (
+                          <>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{field.label || `Untitled ${field.type}`}</label>
+                            {field.helperText && <p className="text-xs text-gray-500 mb-1">{field.helperText}</p>}
+                          </>
+                        )}
+                        <FormComponents 
+                          field={field} 
+                          isPreview={true} 
+                          onChange={handleFormValueChange}
+                        />
+                      </div>
+                    ))}
+                    
+                    {/* Form submit button */}
+                    <div className="pt-6 col-span-2">
+                      <button
+                        type="submit"
+                        className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      >
+                        Submit Form
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       </div>
