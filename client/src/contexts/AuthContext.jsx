@@ -30,7 +30,10 @@ export const AuthProvider = ({ children }) => {
             
             console.log('Auth check response:', userData);
             if (userData) {
-              setUser(userData);
+              // Handle MongoDB response format if present
+              const userObject = userData._doc || userData;
+              console.log('Auth check user data:', userObject);
+              setUser(userObject);
             } else {
               // Invalid token, remove it
               localStorage.removeItem('token');
@@ -73,7 +76,10 @@ export const AuthProvider = ({ children }) => {
       // Store token and user data
       if (data && data.token) {
         localStorage.setItem('token', data.token);
-        setUser(data.user || data);
+        // Extract the actual user data, handling the MongoDB object
+        const userData = data.user._doc || data.user;
+        console.log('Setting user data:', userData);
+        setUser(userData);
         
         // Redirect to dashboard
         setLocation('/');
@@ -122,7 +128,10 @@ export const AuthProvider = ({ children }) => {
       // Store token and user data
       if (data && data.token) {
         localStorage.setItem('token', data.token);
-        setUser(data.user || data);
+        // Extract the actual user data, handling the MongoDB object
+        const userData = data.user._doc || data.user;
+        console.log('Setting user data:', userData);
+        setUser(userData);
         
         // Redirect to dashboard
         setLocation('/');
