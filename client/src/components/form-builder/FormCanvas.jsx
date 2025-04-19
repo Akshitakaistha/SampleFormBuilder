@@ -64,8 +64,8 @@ const FormCanvas = () => {
                 className={`${
                   bannerField?.position === 'top'
                     ? 'w-full h-[300px] border-b border-gray-200'
-                    : 'md:w-1/3 p-4 border-b md:border-b-0 md:border-r border-gray-200'
-                } p-4 relative`}
+                    : 'md:w-1/3 min-h-[100%] border-b md:border-b-0 md:border-r border-gray-200'
+                } relative`}
                 onClick={() => bannerField && setActiveField(bannerField.id)}
               >
                 <button 
@@ -108,7 +108,7 @@ const FormCanvas = () => {
               <div className={`${
                 bannerField?.position === 'top'
                   ? 'w-full'
-                  : 'md:w-1/2'
+                  : 'md:w-2/3'
               } p-4`}>
                 <div 
                   id="formCanvas" 

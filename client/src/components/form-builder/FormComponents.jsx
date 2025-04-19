@@ -143,21 +143,24 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
       return (
         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
           <div className="space-y-1 text-center w-full">
-            {field.previewUrl ? (
+            {field.previewUrl || field.value?.previewUrl ? (
               <div className="flex flex-col items-center">
                 <div className="my-3 p-2 border rounded bg-gray-50 flex items-center max-w-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <span className="text-sm text-gray-700 truncate max-w-[200px]">
-                    {field.fileName || 'Uploaded file'}
+                    {field.fileName || field.value?.fileName || 'Uploaded file'}
                   </span>
                 </div>
                 
                 {isPreview && (
                   <button
                     type="button"
-                    onClick={() => onChange(field.id, null)}
+                    onClick={() => {
+                      if (onChange) onChange(field.id, null);
+                      console.log("File removed");
+                    }}
                     className="text-xs text-red-600 hover:text-red-800 underline"
                   >
                     Remove file
@@ -181,17 +184,18 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          console.log("File selected:", file.name);
                           // Create a preview URL for display
                           const fileData = {
                             file: file,
                             fileName: file.name,
                             previewUrl: URL.createObjectURL(file)
                           };
-                          onChange(field.id, fileData);
+                          if (onChange) onChange(field.id, fileData);
                         }
                       }}
                       required={field.required}
-                      accept={field.allowedTypes}
+                      accept={field.allowedTypes || "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
                     />
                   </label>
                   <p className="pl-1">or drag and drop</p>
@@ -239,21 +243,23 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
       return (
         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
           <div className="space-y-1 text-center w-full">
-            {field.previewUrl ? (
+            {field.previewUrl || field.value?.previewUrl ? (
               <div className="flex flex-col items-center">
-                {field.fileType && field.fileType.startsWith('video/') ? (
+                {(field.fileType && field.fileType.startsWith('video/')) || 
+                 (field.value?.fileType && field.value.fileType.startsWith('video/')) ? (
                   <video 
                     controls 
                     className="max-w-full h-auto max-h-[200px] mb-2 border rounded"
-                    src={field.previewUrl}
+                    src={field.previewUrl || field.value?.previewUrl}
                   >
                     Your browser does not support the video tag.
                   </video>
-                ) : field.fileType && field.fileType.startsWith('audio/') ? (
+                ) : (field.fileType && field.fileType.startsWith('audio/')) || 
+                   (field.value?.fileType && field.value.fileType.startsWith('audio/')) ? (
                   <audio 
                     controls 
                     className="max-w-full mb-2"
-                    src={field.previewUrl}
+                    src={field.previewUrl || field.value?.previewUrl}
                   >
                     Your browser does not support the audio tag.
                   </audio>
@@ -264,7 +270,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span className="text-sm text-gray-700 truncate max-w-[200px]">
-                      {field.fileName || 'Uploaded media'}
+                      {field.fileName || field.value?.fileName || 'Uploaded media'}
                     </span>
                   </div>
                 )}
@@ -272,7 +278,10 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                 {isPreview && (
                   <button
                     type="button"
-                    onClick={() => onChange(field.id, null)}
+                    onClick={() => {
+                      if (onChange) onChange(field.id, null);
+                      console.log("Media removed");
+                    }}
                     className="text-xs text-red-600 hover:text-red-800 underline"
                   >
                     Remove media
@@ -297,6 +306,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          console.log("Media file selected:", file.name, file.type);
                           // Create a preview URL for display
                           const fileData = {
                             file: file,
@@ -304,11 +314,11 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                             fileType: file.type,
                             previewUrl: URL.createObjectURL(file)
                           };
-                          onChange(field.id, fileData);
+                          if (onChange) onChange(field.id, fileData);
                         }
                       }}
                       required={field.required}
-                      accept="audio/*,video/*"
+                      accept={field.allowedTypes || "audio/*,video/*"}
                     />
                   </label>
                   <p className="pl-1">or drag and drop</p>
