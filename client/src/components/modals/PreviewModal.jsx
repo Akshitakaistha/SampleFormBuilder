@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
 
@@ -74,7 +74,6 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, this would submit the form data
     alert('Form submitted successfully in preview mode!');
   };
   
@@ -122,7 +121,6 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                               className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 bg-opacity-90"
                               onClick={(e) => {
                                 e.preventDefault();
-                                // Direct approach - open file selector
                                 const fileInput = document.getElementById(`change-banner-${bannerField.id}`);
                                 if (fileInput) {
                                   fileInput.click();
@@ -144,7 +142,6 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                                   const reader = new FileReader();
                                   reader.onload = (event) => {
                                     if (event.target?.result) {
-                                      // Create banner file data with both file object and data URL
                                       const fileData = {
                                         file: file,
                                         fileName: file.name,
@@ -153,18 +150,15 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                                         dataUrl: event.target.result
                                       };
                                       
-                                      // Log success and update form values
                                       console.log("Banner file successfully processed for change:", file.name);
                                       handleFormValueChange(bannerField.id, fileData);
                                     }
                                   };
                                   
-                                  // Handle potential errors during file reading
                                   reader.onerror = () => {
                                     console.error("Error reading banner file for change:", file.name);
                                   };
                                   
-                                  // Start reading the file as data URL
                                   reader.readAsDataURL(file);
                                 }
                               }} 
@@ -184,7 +178,6 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                             className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                             onClick={(e) => {
                               e.preventDefault();
-                              // Direct approach - open file selector
                               const fileInput = document.getElementById(`upload-banner-${bannerField.id}`);
                               if (fileInput) {
                                 fileInput.click();
@@ -206,7 +199,6 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                                 const reader = new FileReader();
                                 reader.onload = (event) => {
                                   if (event.target?.result) {
-                                    // Create banner file data with both file object and data URL
                                     const fileData = {
                                       file: file,
                                       fileName: file.name,
@@ -215,18 +207,15 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                                       dataUrl: event.target.result
                                     };
                                     
-                                    // Log success and update form values
                                     console.log("Banner file successfully processed:", file.name);
                                     handleFormValueChange(bannerField.id, fileData);
                                   }
                                 };
                                 
-                                // Handle potential errors during file reading
                                 reader.onerror = () => {
                                   console.error("Error reading banner file:", file.name);
                                 };
                                 
-                                // Start reading the file as data URL
                                 reader.readAsDataURL(file);
                               }
                             }}
@@ -247,14 +236,132 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                               {field.helperText && <p className="text-xs text-gray-500 mb-1">{field.helperText}</p>}
                             </>
                           )}
-                          <FormComponents 
-                            field={{
-                              ...field,
-                              value: formValues[field.id] !== undefined ? formValues[field.id] : field.defaultValue
-                            }} 
-                            isPreview={true} 
-                            onChange={handleFormValueChange}
-                          />
+                          {field.type === 'fileUpload' || field.type === 'mediaUpload' ? (
+                            <div 
+                              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${dragActive[field.id] ? 'border-primary-400 bg-primary-50' : 'border-gray-300'} border-dashed rounded-md`}
+                              onDragEnter={(e) => handleDrag(e, field.id, true)}
+                              onDragLeave={(e) => handleDrag(e, field.id, false)}
+                              onDragOver={(e) => handleDrag(e, field.id)}
+                              onDrop={(e) => handleDrop(e, field.id)}
+                            >
+                              <div className="space-y-1 text-center w-full">
+                                {formValues[field.id]?.fileName ? (
+                                  <div className="flex flex-col items-center">
+                                    {field.type === 'mediaUpload' && formValues[field.id]?.fileType ? (
+                                      <>
+                                        {formValues[field.id]?.fileType.startsWith('video/') ? (
+                                          <video 
+                                            controls 
+                                            className="max-w-full h-auto max-h-[200px] mb-2 border rounded"
+                                            src={formValues[field.id]?.previewUrl || formValues[field.id]?.dataUrl}
+                                          >
+                                            Your browser does not support the video tag.
+                                          </video>
+                                        ) : formValues[field.id]?.fileType.startsWith('audio/') ? (
+                                          <audio 
+                                            controls 
+                                            className="max-w-full mb-2"
+                                            src={formValues[field.id]?.previewUrl || formValues[field.id]?.dataUrl}
+                                          >
+                                            Your browser does not support the audio tag.
+                                          </audio>
+                                        ) : (
+                                          <div className="my-3 p-2 border rounded bg-gray-50 flex items-center max-w-full">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span className="text-sm text-gray-700 truncate max-w-[200px]">
+                                              {formValues[field.id]?.fileName || 'Uploaded media'}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <div className="my-3 p-2 border rounded bg-gray-50 flex items-center max-w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span className="text-sm text-gray-700 truncate max-w-[200px]">
+                                          {formValues[field.id]?.fileName || 'Uploaded file'}
+                                        </span>
+                                      </div>
+                                    )}
+                                    
+                                    <button
+                                      type="button"
+                                      onClick={() => handleFormValueChange(field.id, null)}
+                                      className="text-xs text-red-600 hover:text-red-800 underline"
+                                    >
+                                      Remove {field.type === 'mediaUpload' ? 'media' : 'file'}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <div className="flex flex-col text-sm text-gray-600 justify-center">
+                                      <button 
+                                        type="button"
+                                        className="cursor-pointer mx-auto mb-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                        onClick={() => triggerFileInput(field.id)}
+                                      >
+                                        {field.type === 'mediaUpload' ? 'Select media file' : 'Select a file'}
+                                      </button>
+                                      <input 
+                                        ref={el => fileInputRefs.current[field.id] = el}
+                                        type="file" 
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            console.log("File selected in preview modal:", file.name);
+                                            
+                                            const reader = new FileReader();
+                                            reader.onload = (event) => {
+                                              if (event.target?.result) {
+                                                const fileData = {
+                                                  file: file,
+                                                  fileName: file.name,
+                                                  fileType: file.type,
+                                                  previewUrl: URL.createObjectURL(file),
+                                                  dataUrl: event.target.result
+                                                };
+                                                
+                                                console.log("File successfully processed in modal:", file.name);
+                                                handleFormValueChange(field.id, fileData);
+                                              }
+                                            };
+                                            
+                                            reader.onerror = () => {
+                                              console.error("Error reading file in modal:", file.name);
+                                            };
+                                            
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                        accept={field.allowedTypes || (field.type === 'mediaUpload' ? "audio/*,video/*" : "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+                                      />
+                                      <p className="text-sm text-center text-gray-500">or drag and drop your file here</p>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                      {field.fileTypeText || field.mediaTypeText || (field.type === 'mediaUpload' ? 'MP3, WAV, MP4, MOV up to 10MB' : 'PNG, JPG, PDF, DOC up to 10MB')}
+                                    </p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <FormComponents 
+                              field={{
+                                ...field,
+                                value: formValues[field.id] !== undefined ? formValues[field.id] : field.defaultValue
+                              }} 
+                              isPreview={true} 
+                              onChange={handleFormValueChange}
+                            />
+                          )}
                         </div>
                       ))}
                       
@@ -282,7 +389,13 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                           </>
                         )}
                         {field.type === 'fileUpload' || field.type === 'mediaUpload' ? (
-                          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                          <div 
+                            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${dragActive[field.id] ? 'border-primary-400 bg-primary-50' : 'border-gray-300'} border-dashed rounded-md`}
+                            onDragEnter={(e) => handleDrag(e, field.id, true)}
+                            onDragLeave={(e) => handleDrag(e, field.id, false)}
+                            onDragOver={(e) => handleDrag(e, field.id)}
+                            onDrop={(e) => handleDrop(e, field.id)}
+                          >
                             <div className="space-y-1 text-center w-full">
                               {formValues[field.id]?.fileName ? (
                                 <div className="flex flex-col items-center">
