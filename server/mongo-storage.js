@@ -167,10 +167,31 @@ class MongoStorage {
   async createForm(formData) {
     await this.ensureConnection();
     try {
+      console.log('MongoStorage: Creating form with data:', JSON.stringify(formData));
+      
+      // Make sure schema is an object, not a string
+      if (typeof formData.schema === 'string') {
+        try {
+          formData.schema = JSON.parse(formData.schema);
+          console.log('MongoStorage: Parsed schema from string');
+        } catch (e) {
+          console.error('MongoStorage: Failed to parse schema string, using as is:', e);
+        }
+      }
+      
+      // Ensure userId is properly set
+      if (!formData.userId) {
+        console.error('MongoStorage: No userId provided in form data');
+        throw new Error('User ID is required to create a form');
+      }
+      
       const form = new Form(formData);
-      return await form.save();
+      console.log('MongoStorage: Form model created, saving...');
+      const savedForm = await form.save();
+      console.log('MongoStorage: Form saved successfully with ID:', savedForm._id);
+      return savedForm;
     } catch (error) {
-      console.error('Error creating form:', error);
+      console.error('MongoStorage: Error creating form:', error);
       throw error;
     }
   }

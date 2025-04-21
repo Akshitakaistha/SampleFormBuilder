@@ -32,6 +32,18 @@ export async function apiRequest(
   
   try {
     console.log(`Making API request: ${method} ${url}`);
+    if (data) {
+      console.log(`Request data:`, data);
+    }
+    
+    // Log all request details for debugging
+    const requestDetails = {
+      method,
+      url,
+      headers,
+      data: data ? JSON.stringify(data) : undefined
+    };
+    console.log('Full request details:', requestDetails);
     
     const res = await fetch(url, {
       method,
@@ -40,8 +52,29 @@ export async function apiRequest(
       credentials: "include",
     });
 
-    await throwIfResNotOk(res);
-    const jsonData = await res.json().catch(() => ({}));
+    console.log(`API response status:`, res.status, res.statusText);
+    
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => 'No error text available');
+      console.error(`API error (${res.status}):`, errorText);
+      throw new Error(`Request failed with status ${res.status}: ${errorText}`);
+    }
+
+    // Check if response is empty
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.log('Response is not JSON, returning empty object');
+      return {};
+    }
+    
+    let jsonData;
+    try {
+      jsonData = await res.json();
+      console.log('API response data:', jsonData);
+    } catch (parseError) {
+      console.error('Failed to parse JSON response:', parseError);
+      return {};
+    }
     
     // Check if the response has MongoDB document format with $_doc property
     if (jsonData && jsonData.$__?.activePaths && jsonData._doc) {

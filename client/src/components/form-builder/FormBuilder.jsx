@@ -141,16 +141,35 @@ const FormBuilder = ({ formId }) => {
             
             console.log("New form created response:", response);
             
-            if (!response || !response.id) {
+            // Extract form ID - handle both MongoDB and regular formats
+            let formId = null;
+            
+            // If MongoDB response
+            if (response && response._id) {
+              formId = response._id;
+              console.log("Found MongoDB _id:", formId);
+            }
+            // Normal response
+            else if (response && response.id) {
+              formId = response.id;
+              console.log("Found regular id:", formId);
+            }
+            // Direct MongoDB document
+            else if (response && response.$__ && response._doc && response._doc._id) {
+              formId = response._doc._id;
+              console.log("Found MongoDB document _id in _doc:", formId);
+            }
+            
+            if (!formId) {
               console.error("API returned success but no form ID. Response:", response);
               throw new Error("Server didn't return a valid form ID");
             }
             
-            console.log("Setting form state with new ID:", response.id);
+            console.log("Setting form state with new ID:", formId);
             // Update state with new form ID
             setFormState(prev => ({
               ...prev,
-              id: response.id
+              id: formId
             }));
             
             toast({
@@ -227,12 +246,36 @@ const FormBuilder = ({ formId }) => {
           
           console.log("New form created before publishing:", newForm);
           
-          formToPublish = newForm.id;
+          // Extract form ID - handle both MongoDB and regular formats
+          let formId = null;
+          
+          // If MongoDB response
+          if (newForm && newForm._id) {
+            formId = newForm._id;
+            console.log("Found MongoDB _id:", formId);
+          }
+          // Normal response
+          else if (newForm && newForm.id) {
+            formId = newForm.id;
+            console.log("Found regular id:", formId);
+          }
+          // Direct MongoDB document
+          else if (newForm && newForm.$__ && newForm._doc && newForm._doc._id) {
+            formId = newForm._doc._id;
+            console.log("Found MongoDB document _id in _doc:", formId);
+          }
+          
+          if (!formId) {
+            console.error("API returned success but no form ID. Response:", newForm);
+            throw new Error("Server didn't return a valid form ID");
+          }
+          
+          formToPublish = formId;
   
           // Update state with new form ID
           setFormState(prev => ({
             ...prev,
-            id: newForm.id
+            id: formId
           }));
         } catch (apiError) {
           console.error("API error creating form:", apiError);
