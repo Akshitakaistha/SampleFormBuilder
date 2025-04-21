@@ -200,13 +200,33 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       const file = e.target.files?.[0];
                       if (file) {
                         console.log("File selected:", file.name);
-                        // Create a preview URL for display
-                        const fileData = {
-                          file: file,
-                          fileName: file.name,
-                          previewUrl: URL.createObjectURL(file)
+                        
+                        // Create a FileReader to read the file as data URL
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          if (event.target?.result) {
+                            // Create file data with both file object and data URL
+                            const fileData = {
+                              file: file,
+                              fileName: file.name,
+                              fileType: file.type,
+                              previewUrl: URL.createObjectURL(file),
+                              dataUrl: event.target.result
+                            };
+                            
+                            // Log success and call onChange handler
+                            console.log("File successfully processed:", file.name);
+                            if (onChange) onChange(field.id, fileData);
+                          }
                         };
-                        if (onChange) onChange(field.id, fileData);
+                        
+                        // Handle potential errors during file reading
+                        reader.onerror = () => {
+                          console.error("Error reading file:", file.name);
+                        };
+                        
+                        // Start reading the file as data URL
+                        reader.readAsDataURL(file);
                       }
                     }}
                     required={field.required}
@@ -336,14 +356,33 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                       const file = e.target.files?.[0];
                       if (file) {
                         console.log("Media file selected:", file.name, file.type);
-                        // Create a preview URL for display
-                        const fileData = {
-                          file: file,
-                          fileName: file.name,
-                          fileType: file.type,
-                          previewUrl: URL.createObjectURL(file)
+                        
+                        // Create a FileReader to read the file as data URL
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          if (event.target?.result) {
+                            // Create media file data with both file object and data URL
+                            const fileData = {
+                              file: file,
+                              fileName: file.name,
+                              fileType: file.type,
+                              previewUrl: URL.createObjectURL(file),
+                              dataUrl: event.target.result
+                            };
+                            
+                            // Log success and call onChange handler
+                            console.log("Media file successfully processed:", file.name);
+                            if (onChange) onChange(field.id, fileData);
+                          }
                         };
-                        if (onChange) onChange(field.id, fileData);
+                        
+                        // Handle potential errors during file reading
+                        reader.onerror = () => {
+                          console.error("Error reading media file:", file.name);
+                        };
+                        
+                        // Start reading the file as data URL
+                        reader.readAsDataURL(file);
                       }
                     }}
                     required={field.required}
