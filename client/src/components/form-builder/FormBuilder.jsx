@@ -93,10 +93,7 @@ const FormBuilder = ({ formId }) => {
       console.log("Getting current user data");
       // Get current user to ensure we're authenticated and have user data
       try {
-        const userData = await apiRequest({
-          method: 'GET',
-          url: '/api/auth/me'
-        });
+        const userData = await apiRequest('GET', '/api/auth/me');
         
         console.log("User data received:", userData);
         
@@ -123,11 +120,7 @@ const FormBuilder = ({ formId }) => {
           console.log("Updating existing form with ID:", formId);
           try {
             console.log("Sending PUT request to update form");
-            const response = await apiRequest({
-              url: `/api/forms/${formId}`,
-              method: 'PUT',
-              data: formData
-            });
+            const response = await apiRequest('PUT', `/api/forms/${formId}`, formData);
             
             console.log("Form update response:", response);
             
@@ -144,11 +137,7 @@ const FormBuilder = ({ formId }) => {
           console.log("Creating new form - no formId present");
           try {
             console.log("Sending POST request to create form");
-            const response = await apiRequest({
-              url: '/api/forms',
-              method: 'POST',
-              data: formData
-            });
+            const response = await apiRequest('POST', '/api/forms', formData);
             
             console.log("New form created response:", response);
             
@@ -234,10 +223,7 @@ const FormBuilder = ({ formId }) => {
       }
 
       // Get current user to ensure we're authenticated and have user data
-      const userData = await apiRequest({
-        method: 'GET',
-        url: '/api/auth/me'
-      });
+      const userData = await apiRequest('GET', '/api/auth/me');
       
       if (!userData) {
         throw new Error("Not authenticated");
@@ -260,11 +246,7 @@ const FormBuilder = ({ formId }) => {
         // Create new form first
         console.log("Creating new form before publishing");
         try {
-          const newForm = await apiRequest({
-            url: '/api/forms',
-            method: 'POST',
-            data: formData
-          });
+          const newForm = await apiRequest('POST', '/api/forms', formData);
           
           console.log("New form created before publishing:", newForm);
           
@@ -307,11 +289,7 @@ const FormBuilder = ({ formId }) => {
         // Update existing form
         console.log("Updating existing form with ID:", formId);
         try {
-          await apiRequest({
-            url: `/api/forms/${formId}`,
-            method: 'PUT',
-            data: formData
-          });
+          await apiRequest('PUT', `/api/forms/${formId}`, formData);
         } catch (apiError) {
           console.error("API error updating form:", apiError);
           throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
@@ -321,10 +299,7 @@ const FormBuilder = ({ formId }) => {
       // Then publish the form
       console.log("Publishing form with ID:", formToPublish);
       try {
-        const publishedForm = await apiRequest({
-          url: `/api/forms/${formToPublish}/publish`,
-          method: 'POST'
-        });
+        const publishedForm = await apiRequest('POST', `/api/forms/${formToPublish}/publish`);
         
         console.log("Form published successfully:", publishedForm);
 

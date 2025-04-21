@@ -1,0 +1,189 @@
+import { QueryClient, QueryFunction } from "@tanstack/react-query";
+
+async function throwIfResNotOk(res: Response) {
+  if (!res.ok) {
+    const text = (await res.text()) || res.statusText;
+    throw new Error(`${res.status}: ${text}`);
+  }
+}
+
+// export async function apiRequest(
+//   options: {
+//     url: string,
+//     method: string,
+//     data?: unknown | undefined,
+//   } | {
+//     method: string,
+//     url: string,
+//     data?: unknown | undefined,
+//   }
+// ): Promise<any> {
+//   // Make sure method is a valid HTTP method name
+//   let method: string;
+//   if (typeof options.method === 'string') {
+//     method = options.method.toUpperCase(); // Standardize to uppercase
+//     // Validate it's an allowed method
+//     if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(method)) {
+//       console.error("Invalid HTTP method provided:", options.method);
+//       throw new Error(`Invalid HTTP method: ${options.method}`);
+//     }
+//   } else {
+//     console.error("Method is not a string:", options.method);
+//     throw new Error("HTTP method must be a string");
+//   }
+  
+//   const url = options.url;
+//   const data = 'data' in options ? options.data : undefined;
+  
+//   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
+  
+//   // Add authorization token if available
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     headers["Authorization"] = `Bearer ${token}`;
+//   }
+  
+//   try {
+//     console.log(`Making API request: ${method} ${url}`);
+//     if (data) {
+//       console.log(`Request data:`, data);
+//     }
+    
+//     // Log all request details for debugging
+//     const requestDetails = {
+//       method,
+//       url,
+//       headers,
+//       data: data ? JSON.stringify(data) : undefined
+//     };
+//     console.log('Full request details:', requestDetails);
+    
+//     const res = await fetch(url, {
+//       method,
+//       headers,
+//       body: data ? JSON.stringify(data) : undefined,
+//       credentials: "include",
+//     });
+
+//     console.log(`API response status:`, res.status, res.statusText);
+    
+//     if (!res.ok) {
+//       const errorText = await res.text().catch(() => 'No error text available');
+//       console.error(`API error (${res.status}):`, errorText);
+//       throw new Error(`Request failed with status ${res.status}: ${errorText}`);
+//     }
+
+//     // Check if response is empty
+//     const contentType = res.headers.get('content-type');
+//     if (!contentType || !contentType.includes('application/json')) {
+//       console.log('Response is not JSON, returning empty object');
+//       return {};
+//     }
+    
+//     let jsonData;
+//     try {
+//       jsonData = await res.json();
+//       console.log('API response data:', jsonData);
+//     } catch (parseError) {
+//       console.error('Failed to parse JSON response:', parseError);
+//       return {};
+//     }
+    
+//     // Check if the response has MongoDB document format with $_doc property
+//     if (jsonData && jsonData.$__?.activePaths && jsonData._doc) {
+//       console.log("Converting MongoDB document to plain object");
+//       return jsonData._doc;
+//     }
+    
+//     // Check if the response is an array of MongoDB documents
+//     if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0]?.$__?.activePaths && jsonData[0]?._doc) {
+//       console.log("Converting array of MongoDB documents to plain objects");
+//       return jsonData.map(item => item._doc);
+//     }
+    
+//     return jsonData;
+//   } catch (error) {
+//     console.error("API request failed:", error);
+//     throw error;
+//   }
+// }
+
+export async function apiRequest(
+    method: string,
+    url: string,
+    data?: unknown | undefined,
+  ): Promise<Response> {
+    const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
+    
+    // Add authorization token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+  
+    await throwIfResNotOk(res);
+    return res;
+  }  
+
+type UnauthorizedBehavior = "returnNull" | "throw";
+export const getQueryFn: <T>(options: {
+  on401: UnauthorizedBehavior;
+}) => QueryFunction<T> =
+  ({ on401: unauthorizedBehavior }) =>
+  async ({ queryKey }) => {
+    const headers: Record<string, string> = {};
+    
+    // Add authorization token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(queryKey[0] as string, {
+      credentials: "include",
+      headers
+    });
+
+    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+      return null;
+    }
+
+    await throwIfResNotOk(res);
+    const jsonData = await res.json();
+    
+    // Check if the response has MongoDB document format with $_doc property
+    if (jsonData && jsonData.$__?.activePaths && jsonData._doc) {
+      console.log("Query converting MongoDB document to plain object");
+      return jsonData._doc;
+    }
+    
+    // Check if the response is an array of MongoDB documents
+    if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0]?.$__?.activePaths && jsonData[0]?._doc) {
+      console.log("Query converting array of MongoDB documents to plain objects");
+      return jsonData.map(item => item._doc);
+    }
+    
+    return jsonData;
+  };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: getQueryFn({ on401: "throw" }),
+      refetchInterval: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      retry: false,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
