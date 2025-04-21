@@ -146,7 +146,7 @@ const FormsList = () => {
           ) : filteredForms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredForms.map(form => (
-                <Card key={form.id} className="hover:shadow-md transition-shadow">
+                <Card key={form._id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <CardTitle>{form.name || 'Untitled Form'}</CardTitle>
                     <CardDescription>
@@ -169,7 +169,7 @@ const FormsList = () => {
                   <CardFooter>
                     <div className="w-full flex flex-wrap gap-2">
                       <Button variant="outline" className="flex-1" asChild>
-                        <Link href={`/forms/edit/${form.id}`}>
+                        <Link href={`/forms/edit/${form._id}`}>
                           <Icons.Edit className="mr-1" />
                           Edit
                         </Link>
@@ -177,7 +177,7 @@ const FormsList = () => {
                       
                       {form.status === 'published' && (
                         <Button variant="outline" className="flex-1" asChild>
-                          <Link href={`/forms/${form.id}/responses`}>
+                          <Link href={`/forms/${form._id}/responses`}>
                             <Icons.Responses className="mr-1" />
                             Responses
                           </Link>
@@ -187,7 +187,7 @@ const FormsList = () => {
                       <Button 
                         variant="outline" 
                         className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setConfirmDelete(form.id)}
+                        onClick={() => setConfirmDelete(form._id)}
                       >
                         <Icons.Delete className="mr-1" />
                         Delete
