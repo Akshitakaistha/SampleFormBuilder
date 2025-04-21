@@ -48,10 +48,10 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                 <div>
                   {/* Banner section */}
                   <div className={`${bannerField?.position === 'top' ? 'w-full h-64' : 'md:float-left md:w-1/3 h-full min-h-[600px] md:min-h-screen'} relative`}>
-                    {bannerField?.bannerUrl ? (
+                    {(bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
                       <div className="w-full h-full">
                         <img 
-                          src={bannerField.bannerUrl} 
+                          src={formValues[bannerField?.id]?.preview || bannerField.bannerUrl} 
                           alt="Form Banner" 
                           className="w-full h-full object-cover"
                         />
@@ -80,17 +80,32 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
+                                  console.log("Banner file selected for change:", file.name);
+                                  
                                   const reader = new FileReader();
                                   reader.onload = (event) => {
                                     if (event.target?.result) {
-                                      // Update the local state with the new image
-                                      handleFormValueChange(bannerField.id, {
+                                      // Create banner file data with both file object and data URL
+                                      const fileData = {
                                         file: file,
-                                        preview: event.target.result
-                                      });
-                                      console.log("Banner would be uploaded:", file.name);
+                                        fileName: file.name,
+                                        fileType: file.type,
+                                        preview: event.target.result,
+                                        dataUrl: event.target.result
+                                      };
+                                      
+                                      // Log success and update form values
+                                      console.log("Banner file successfully processed for change:", file.name);
+                                      handleFormValueChange(bannerField.id, fileData);
                                     }
                                   };
+                                  
+                                  // Handle potential errors during file reading
+                                  reader.onerror = () => {
+                                    console.error("Error reading banner file for change:", file.name);
+                                  };
+                                  
+                                  // Start reading the file as data URL
                                   reader.readAsDataURL(file);
                                 }
                               }} 
@@ -127,17 +142,32 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                console.log("Banner file selected:", file.name);
+                                
                                 const reader = new FileReader();
                                 reader.onload = (event) => {
                                   if (event.target?.result) {
-                                    // Update the local state with the new image
-                                    handleFormValueChange(bannerField.id, {
+                                    // Create banner file data with both file object and data URL
+                                    const fileData = {
                                       file: file,
-                                      preview: event.target.result
-                                    });
-                                    console.log("Banner would be uploaded:", file.name);
+                                      fileName: file.name,
+                                      fileType: file.type,
+                                      preview: event.target.result,
+                                      dataUrl: event.target.result
+                                    };
+                                    
+                                    // Log success and update form values
+                                    console.log("Banner file successfully processed:", file.name);
+                                    handleFormValueChange(bannerField.id, fileData);
                                   }
                                 };
+                                
+                                // Handle potential errors during file reading
+                                reader.onerror = () => {
+                                  console.error("Error reading banner file:", file.name);
+                                };
+                                
+                                // Start reading the file as data URL
                                 reader.readAsDataURL(file);
                               }
                             }}
