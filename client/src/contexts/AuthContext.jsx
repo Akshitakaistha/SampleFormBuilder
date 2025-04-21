@@ -30,10 +30,7 @@ export function AuthProvider({ children }) {
           console.log('Checking auth status with token');
           // Validate token by fetching user profile
           try {
-            const userData = await apiRequest({
-              method: 'GET',
-              url: '/api/auth/me'
-            });
+            const userData = await apiRequest('GET', '/api/auth/me');
             
             console.log('Auth check response:', userData);
             if (userData) {
@@ -72,11 +69,7 @@ export function AuthProvider({ children }) {
       setLoading(true);
       console.log('Attempting login for:', username);
       
-      const data = await apiRequest({
-        method: 'POST',
-        url: '/api/auth/login',
-        data: { username, password }
-      });
+      const data = await apiRequest('POST', '/api/auth/login', { username, password });
       
       console.log('Login response:', data);
       
@@ -119,15 +112,11 @@ export function AuthProvider({ children }) {
       setLoading(true);
       console.log('Attempting registration for:', username);
       
-      const data = await apiRequest({
-        method: 'POST',
-        url: '/api/auth/register',
-        data: { 
-          username, 
-          email, 
-          password,
-          role: 'admin' // Default role for self-registration
-        }
+      const data = await apiRequest('POST', '/api/auth/register', { 
+        username, 
+        email, 
+        password,
+        role: 'admin' // Default role for self-registration
       });
       
       console.log('Registration response:', data);
