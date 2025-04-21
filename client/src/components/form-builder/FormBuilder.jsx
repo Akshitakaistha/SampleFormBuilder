@@ -66,9 +66,11 @@ const FormBuilder = ({ formId }) => {
   }, [formId]); // Only depend on formId changes
 
   const handleSaveDraft = useCallback(async () => {
+    console.log("Save draft started");
     try {
       // Validate that form has at least one field
       if (!formState.fields || formState.fields.length === 0) {
+        console.log("Form has no fields, showing warning");
         toast({
           title: 'Warning',
           description: 'Please add at least one field to your form before saving.',
@@ -77,77 +79,97 @@ const FormBuilder = ({ formId }) => {
         return;
       }
 
+      console.log("Getting current user data");
       // Get current user to ensure we're authenticated and have user data
-      const userData = await apiRequest({
-        method: 'GET',
-        url: '/api/auth/me'
-      });
-      
-      if (!userData) {
-        throw new Error("Not authenticated");
-      }
-      
-      // Include userId explicitly in form data
-      const formData = {
-        name: formState.name || 'Untitled Form',
-        description: formState.description || '',
-        schema: { fields: formState.fields },
-        status: 'draft',
-        userId: userData._id || userData.id
-      };
-
-      console.log("Saving form data:", JSON.stringify(formData));
-
-      if (formId) {
-        // Update existing form
-        console.log("Updating existing form with ID:", formId);
-        try {
-          const response = await apiRequest({
-            url: `/api/forms/${formId}`,
-            method: 'PUT',
-            data: formData
-          });
-          
-          console.log("Form update response:", response);
-          
-          toast({
-            title: 'Success',
-            description: 'Form saved as draft successfully',
-          });
-        } catch (apiError) {
-          console.error("API error updating form:", apiError);
-          throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
+      try {
+        const userData = await apiRequest({
+          method: 'GET',
+          url: '/api/auth/me'
+        });
+        
+        console.log("User data received:", userData);
+        
+        if (!userData) {
+          console.error("No user data returned");
+          throw new Error("Not authenticated");
         }
-      } else {
-        // Create new form
-        console.log("Creating new form");
-        try {
-          const response = await apiRequest({
-            url: '/api/forms',
-            method: 'POST',
-            data: formData
-          });
-          
-          console.log("New form created:", response);
-          
-          // Update state with new form ID
-          setFormState(prev => ({
-            ...prev,
-            id: response.id
-          }));
-          
-          toast({
-            title: 'Success',
-            description: 'Form created and saved as draft',
-          });
-        } catch (apiError) {
-          console.error("API error creating form:", apiError);
-          throw new Error(`Failed to create form: ${apiError.message || 'Unknown error'}`);
+        
+        // Include userId explicitly in form data
+        const formData = {
+          name: formState.name || 'Untitled Form',
+          description: formState.description || '',
+          schema: { fields: formState.fields },
+          status: 'draft',
+          userId: userData._id || userData.id
+        };
+
+        console.log("Prepared form data:", JSON.stringify(formData));
+        console.log("userId:", formData.userId);
+        console.log("User data type:", userData._id ? 'MongoDB' : 'Other storage');
+
+        if (formId) {
+          // Update existing form
+          console.log("Updating existing form with ID:", formId);
+          try {
+            console.log("Sending PUT request to update form");
+            const response = await apiRequest({
+              url: `/api/forms/${formId}`,
+              method: 'PUT',
+              data: formData
+            });
+            
+            console.log("Form update response:", response);
+            
+            toast({
+              title: 'Success',
+              description: 'Form saved as draft successfully',
+            });
+          } catch (apiError) {
+            console.error("API error updating form:", apiError);
+            throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
+          }
+        } else {
+          // Create new form
+          console.log("Creating new form - no formId present");
+          try {
+            console.log("Sending POST request to create form");
+            const response = await apiRequest({
+              url: '/api/forms',
+              method: 'POST',
+              data: formData
+            });
+            
+            console.log("New form created response:", response);
+            
+            if (!response || !response.id) {
+              console.error("API returned success but no form ID. Response:", response);
+              throw new Error("Server didn't return a valid form ID");
+            }
+            
+            console.log("Setting form state with new ID:", response.id);
+            // Update state with new form ID
+            setFormState(prev => ({
+              ...prev,
+              id: response.id
+            }));
+            
+            toast({
+              title: 'Success',
+              description: 'Form created and saved as draft',
+            });
+          } catch (apiError) {
+            console.error("API error creating form:", apiError);
+            throw new Error(`Failed to create form: ${apiError.message || 'Unknown error'}`);
+          }
         }
+        
+        console.log("Invalidating form queries cache");
+        // Invalidate forms cache
+        queryClient.invalidateQueries({ queryKey: ['/api/forms'] });
+      } catch (authError) {
+        console.error("Error getting user data:", authError);
+        throw new Error(`Authentication failed: ${authError.message}`);
       }
-      
-      // Invalidate forms cache
-      queryClient.invalidateQueries({ queryKey: ['/api/forms'] });
     } catch (error) {
       console.error("Error saving form:", error);
       toast({

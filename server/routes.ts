@@ -260,15 +260,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Form routes
   app.post("/api/forms", authenticate, async (req, res) => {
     try {
+      console.log("Received form create request with body:", JSON.stringify(req.body));
       const user = (req as any).user;
+      console.log("Authenticated user:", user._id || user.id);
+      
+      // Make sure we're using the MongoDB ObjectId if available
+      const userId = user._id || user.id;
+      console.log("Using userId:", userId);
+      
       const formData = insertFormSchema.parse({
         ...req.body,
-        userId: user.id // Set the current user as the creator
+        userId: userId 
       });
       
+      console.log("Validated form data:", JSON.stringify(formData));
       const form = await storage.createForm(formData);
+      console.log("Form created successfully:", JSON.stringify(form));
       return res.status(201).json(form);
     } catch (error) {
+      console.error("Error creating form:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Validation error", errors: error.errors });
       }
