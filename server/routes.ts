@@ -279,6 +279,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user data. Please login again." });
       }
       
+      // Validate form name - prevent 'Untitled Form' as name
+      if (req.body.name === 'Untitled Form') {
+        console.error("Rejecting form with default name 'Untitled Form'");
+        return res.status(400).json({ 
+          message: "Form name required", 
+          details: "Please provide a name for your form before saving."
+        });
+      }
+      
       // Create a cleaned version of the form data
       const formDataRaw = {
         ...req.body,

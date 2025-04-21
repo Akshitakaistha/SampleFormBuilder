@@ -68,6 +68,17 @@ const FormBuilder = ({ formId }) => {
   const handleSaveDraft = useCallback(async () => {
     console.log("Save draft started");
     try {
+      // Validate that form has a name other than the default
+      if (!formState.name || formState.name === 'Untitled Form') {
+        console.log("Form has default name, showing warning");
+        toast({
+          title: 'Form Name Required',
+          description: 'Please add a name to your form before saving.',
+          variant: 'warning'
+        });
+        return;
+      }
+      
       // Validate that form has at least one field
       if (!formState.fields || formState.fields.length === 0) {
         console.log("Form has no fields, showing warning");
@@ -201,6 +212,17 @@ const FormBuilder = ({ formId }) => {
 
   const handlePublish = useCallback(async () => {
     try {
+      // Validate that form has a name other than the default
+      if (!formState.name || formState.name === 'Untitled Form') {
+        console.log("Form has default name, showing warning");
+        toast({
+          title: 'Form Name Required',
+          description: 'Please add a name to your form before publishing.',
+          variant: 'warning'
+        });
+        return;
+      }
+      
       // Validate that form has at least one field
       if (!formState.fields || formState.fields.length === 0) {
         toast({
