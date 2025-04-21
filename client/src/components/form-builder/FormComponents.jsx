@@ -173,23 +173,26 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <div className="flex flex-col text-sm text-gray-600 justify-center">
-                  <input 
+                  <button 
                     type="button"
-                    value="Select a file"
                     className="cursor-pointer mx-auto mb-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     onClick={(e) => {
                       e.preventDefault();
                       if (isPreview) {
+                        console.log("Trying to open file input with ID:", `file-upload-${field.id}`);
                         // Direct approach - open file selector
                         const fileInput = document.getElementById(`file-upload-${field.id}`);
                         if (fileInput) {
                           fileInput.click();
+                          console.log("File input clicked");
                         } else {
                           console.error(`Could not find file input with id file-upload-${field.id}`);
                         }
                       }
                     }}
-                  />
+                  >
+                    Select a file
+                  </button>
                   <input 
                     id={`file-upload-${field.id}`} 
                     name={`file-upload-${field.id}`} 
@@ -329,23 +332,26 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex flex-col text-sm text-gray-600 justify-center">
-                  <input 
+                  <button 
                     type="button"
-                    value="Select media file"
                     className="cursor-pointer mx-auto mb-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     onClick={(e) => {
                       e.preventDefault();
                       if (isPreview) {
+                        console.log("Trying to open media file input with ID:", `media-upload-${field.id}`);
                         // Direct approach - open file selector
                         const fileInput = document.getElementById(`media-upload-${field.id}`);
                         if (fileInput) {
                           fileInput.click();
+                          console.log("Media file input clicked");
                         } else {
                           console.error(`Could not find file input with id media-upload-${field.id}`);
                         }
                       }
                     }}
-                  />
+                  >
+                    Select media file
+                  </button>
                   <input 
                     id={`media-upload-${field.id}`} 
                     name={`media-upload-${field.id}`} 
