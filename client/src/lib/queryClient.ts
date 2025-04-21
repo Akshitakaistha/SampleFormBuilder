@@ -18,7 +18,20 @@ export async function apiRequest(
     data?: unknown | undefined,
   }
 ): Promise<any> {
-  const method = options.method;
+  // Make sure method is a valid HTTP method name
+  let method: string;
+  if (typeof options.method === 'string') {
+    method = options.method.toUpperCase(); // Standardize to uppercase
+    // Validate it's an allowed method
+    if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(method)) {
+      console.error("Invalid HTTP method provided:", options.method);
+      throw new Error(`Invalid HTTP method: ${options.method}`);
+    }
+  } else {
+    console.error("Method is not a string:", options.method);
+    throw new Error("HTTP method must be a string");
+  }
+  
   const url = options.url;
   const data = 'data' in options ? options.data : undefined;
   
