@@ -136,13 +136,26 @@ class MongoStorage {
   async deleteUser(id) {
     await this.ensureConnection();
     try {
+      console.log('Attempting to delete user with ID:', id, 'Type:', typeof id);
+      
       // Check if it's a valid MongoDB ObjectId
       if (!mongoose.Types.ObjectId.isValid(id)) {
         console.error('Invalid MongoDB ObjectId:', id);
+        
+        // Try to find the user by other means if possible (this is a fallback)
+        if (typeof id === 'string' && id.match(/^[0-9]+$/)) {
+          // If the ID is a string that looks like a number, try to find by a numeric ID field if you have one
+          console.log('Attempting to find user by numeric ID');
+          // No direct way to delete by non-ObjectId in Mongoose without a query
+          // This would require your schema to have a secondary ID field
+          return false;
+        }
         return false;
       }
       
+      console.log('Valid ObjectId, proceeding with deletion');
       const result = await User.findByIdAndDelete(id);
+      console.log('Deletion result:', result ? 'User deleted' : 'User not found');
       return !!result; // Return true if user was found and deleted, false otherwise
     } catch (error) {
       console.error('Error deleting user:', error);
