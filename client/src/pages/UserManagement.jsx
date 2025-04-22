@@ -46,7 +46,7 @@ const UserManagement = () => {
   });
   
   // Check if user is super_admin
-  if (user?.role !== 'super_admin') {
+  if (currentUser?.role !== 'super_admin') {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
         <Card className="w-full max-w-md mx-4">
