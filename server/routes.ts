@@ -223,12 +223,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Prevent super_admin from deleting themselves
       const currentUser = (req as any).user;
-      const userToDelete = await storage.getUser(Number(id));
+      
+      // For MongoDB - don't convert to Number, keep the ID as a string
+      const userToDelete = await storage.getUser(id);
       
       // For MongoDB, we need to compare string IDs
       const isSameUser = currentUser._id 
         ? currentUser._id.toString() === id 
-        : currentUser.id === Number(id);
+        : currentUser.id === id;
       
       if (isSameUser) {
         return res.status(400).json({ message: "You cannot delete your own account" });
