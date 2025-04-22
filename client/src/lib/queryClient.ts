@@ -7,6 +7,21 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Function to get the base URL (useful for local development)
+const getBaseUrl = () => {
+  // Use window.location to determine the current host and protocol
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  
+  // If running on localhost, the server might be on a different port than the client
+  if (host.includes('localhost') || host.includes('127.0.0.1')) {
+    return `${protocol}//${host.split(':')[0]}:5000`;
+  }
+  
+  // Otherwise, use the same host
+  return `${protocol}//${host}`;
+};
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -21,7 +36,10 @@ export async function apiRequest(
   }
   
   try {
-    console.log(`Making API request: ${method} ${url}`);
+    // Build full URL if it's a relative path
+    const fullUrl = url.startsWith('http') ? url : `${getBaseUrl()}${url}`;
+    
+    console.log(`Making API request: ${method} ${fullUrl}`);
     if (data) {
       console.log(`Request data:`, data);
     }
@@ -29,13 +47,13 @@ export async function apiRequest(
     // Log all request details for debugging
     const requestDetails = {
       method,
-      url,
+      url: fullUrl,
       headers,
       data: data ? JSON.stringify(data) : undefined
     };
     console.log('Full request details:', requestDetails);
     
-    const res = await fetch(url, {
+    const res = await fetch(fullUrl, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
@@ -99,7 +117,13 @@ export const getQueryFn: <T>(options: {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(queryKey[0] as string, {
+    // Build full URL if it's a relative path
+    const url = queryKey[0] as string;
+    const fullUrl = url.startsWith('http') ? url : `${getBaseUrl()}${url}`;
+    
+    console.log(`Making query request: GET ${fullUrl}`);
+
+    const res = await fetch(fullUrl, {
       credentials: "include",
       headers
     });
