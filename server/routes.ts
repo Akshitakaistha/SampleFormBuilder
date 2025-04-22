@@ -217,6 +217,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/users/:id", authenticate, authorize(["super_admin"]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Prevent super_admin from deleting themselves
+      const currentUser = (req as any).user;
+      const userToDelete = await storage.getUser(Number(id));
+      
+      // For MongoDB, we need to compare string IDs
+      const isSameUser = currentUser._id 
+        ? currentUser._id.toString() === id 
+        : currentUser.id === Number(id);
+      
+      if (isSameUser) {
+        return res.status(400).json({ message: "You cannot delete your own account" });
+      }
+      
+      // Prevent deleting the last super_admin
+      if (userToDelete?.role === 'super_admin') {
+        const superAdmins = await storage.getSuperAdmins();
+        if (superAdmins.length <= 1) {
+          return res.status(400).json({ message: "Cannot delete the last super admin account" });
+        }
+      }
+      
+      const success = await storage.deleteUser(id);
+      if (success) {
+        return res.status(200).json({ message: "User deleted successfully" });
+      } else {
+        return res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error('Delete user error:', error);
+      return res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
   app.post("/api/users/admin", authenticate, authorize(["super_admin"]), async (req, res) => {
     try {
       // Only super admins can create admin users

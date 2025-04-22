@@ -107,6 +107,10 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async deleteUser(id: number): Promise<boolean> {
+    return this.userMap.delete(id);
+  }
+
   async getAllUsers(): Promise<User[]> {
     return Array.from(this.userMap.values());
   }
@@ -274,6 +278,11 @@ export class DatabaseStorage implements IStorage {
 
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    await db.delete(users).where(eq(users.id, id));
+    return true;
   }
 
   async getAllUsers(): Promise<User[]> {

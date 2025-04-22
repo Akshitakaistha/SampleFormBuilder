@@ -133,6 +133,23 @@ class MongoStorage {
     }
   }
 
+  async deleteUser(id) {
+    await this.ensureConnection();
+    try {
+      // Check if it's a valid MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.error('Invalid MongoDB ObjectId:', id);
+        return false;
+      }
+      
+      const result = await User.findByIdAndDelete(id);
+      return !!result; // Return true if user was found and deleted, false otherwise
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return false;
+    }
+  }
+
   async getAllUsers() {
     await this.ensureConnection();
     try {

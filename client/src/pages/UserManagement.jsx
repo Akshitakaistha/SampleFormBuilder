@@ -27,7 +27,7 @@ const newAdminSchema = z.object({
 });
 
 const UserManagement = () => {
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -228,12 +228,13 @@ const UserManagement = () => {
                           </TableCell>
                           <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell className="text-right">
-                            {/* Don't allow deleting the current user or other super admins if you're not the primary super admin */}
-                            {user.id !== (user?.id) && (user.role !== 'super_admin' || user.id === 1) && (
+                            {/* Don't allow deleting the current logged-in user or other super admins */}
+                            {(user._id || user.id) !== (currentUser?._id?.toString() || currentUser?.id) && 
+                             (user.role !== 'super_admin' || (currentUser?.id === 1 || currentUser?._id === '1')) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setConfirmDelete(user.id)}
+                                onClick={() => setConfirmDelete(user._id || user.id)}
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 <Icons.Delete className="mr-1" />
