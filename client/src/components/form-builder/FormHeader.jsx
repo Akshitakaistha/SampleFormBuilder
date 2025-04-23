@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icons } from '@/components/ui/ui-icons';
 import { useFormBuilder } from '@/contexts/FormBuilderContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { useLocation } from 'wouter';
 
 const FormHeader = ({ onPreview, onSaveDraft, onPublish }) => {
-  const { formState, setFormState } = useFormBuilder();
+  const { formState, setFormState, createCareerDriveForm } = useFormBuilder();
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [location] = useLocation();
   
   const handleFormNameChange = (e) => {
     setFormState(prev => ({
@@ -21,6 +23,10 @@ const FormHeader = ({ onPreview, onSaveDraft, onPublish }) => {
       ...prev,
       description: e.target.value
     }));
+  };
+  
+  const handleCreateCareerDriveForm = () => {
+    createCareerDriveForm();
   };
   
   return (
@@ -96,6 +102,18 @@ const FormHeader = ({ onPreview, onSaveDraft, onPublish }) => {
             {formState.description}
           </p>
         )}
+        
+        <div className="ml-auto">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleCreateCareerDriveForm}
+            className="text-xs bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+          >
+            <Icons.FileText className="h-3 w-3 mr-1" />
+            Create Career Drive Template
+          </Button>
+        </div>
       </div>
     </header>
   );

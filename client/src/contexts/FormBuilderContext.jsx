@@ -230,6 +230,184 @@ export const FormBuilderProvider = ({ children }) => {
     setShowPreviewModal(false);
     setShowPublishModal(false);
   };
+  
+  // Create Career Drive Registration Form
+  const createCareerDriveForm = () => {
+    // Generate unique IDs for each field
+    const firstNameId = uuidv4();
+    const lastNameId = uuidv4();
+    const genderMaleId = uuidv4();
+    const genderFemaleId = uuidv4();
+    const dobId = uuidv4();
+    const qualificationCourseId = uuidv4();
+    const gradYearId = uuidv4();
+    const universityId = uuidv4();
+    const locationId = uuidv4();
+    const mobileId = uuidv4();
+    const whatsappId = uuidv4();
+    const emailId = uuidv4();
+    const resumeUploadId = uuidv4();
+    const jobDescriptionId = uuidv4();
+    
+    // Create Career Drive form
+    setFormState({
+      ...initialFormState,
+      name: 'Career Drive Registration Form',
+      description: 'Registration form for Career Drive applicants',
+      fields: [
+        // First Name field (half width)
+        {
+          ...initialFieldStates.textInput,
+          id: firstNameId,
+          label: 'First Name',
+          placeholder: '',
+          helperText: '',
+          required: true,
+          gridColumn: 'half'
+        },
+        // Last Name field (half width)
+        {
+          ...initialFieldStates.textInput,
+          id: lastNameId,
+          label: 'Last Name',
+          placeholder: '',
+          helperText: '',
+          required: true,
+          gridColumn: 'half'
+        },
+        // Gender radio group
+        {
+          ...initialFieldStates.radio,
+          id: genderMaleId,
+          label: 'Gender',
+          helperText: '',
+          required: true,
+          options: [
+            { label: 'Male', value: 'male' },
+            { label: 'Female', value: 'female' },
+          ]
+        },
+        // Date of Birth field
+        {
+          ...initialFieldStates.date,
+          id: dobId,
+          label: 'Date of Birth',
+          helperText: 'DD / MM / Year',
+          required: true,
+        },
+        // Qualification - Course select
+        {
+          ...initialFieldStates.select,
+          id: qualificationCourseId,
+          label: 'Qualification',
+          placeholder: 'Select Course',
+          helperText: '',
+          required: true,
+          options: [
+            { label: 'Bachelor of Technology', value: 'btech' },
+            { label: 'Bachelor of Science', value: 'bsc' },
+            { label: 'Master of Technology', value: 'mtech' },
+            { label: 'Master of Business Administration', value: 'mba' },
+            { label: 'Others', value: 'others' }
+          ],
+          gridColumn: 'half'
+        },
+        // Graduation Year select
+        {
+          ...initialFieldStates.select,
+          id: gradYearId,
+          label: '',
+          placeholder: 'Select Graduation Year',
+          helperText: '',
+          required: true,
+          options: [
+            { label: '2023', value: '2023' },
+            { label: '2024', value: '2024' },
+            { label: '2025', value: '2025' },
+            { label: 'Other', value: 'other' }
+          ],
+          gridColumn: 'half'
+        },
+        // University/College Name
+        {
+          ...initialFieldStates.textInput,
+          id: universityId,
+          label: 'College / University Name',
+          placeholder: '',
+          helperText: '',
+          required: true,
+          gridColumn: 'half'
+        },
+        // Location
+        {
+          ...initialFieldStates.select,
+          id: locationId,
+          label: 'Location',
+          placeholder: 'Select Location',
+          helperText: '',
+          required: true,
+          options: [
+            { label: 'Bangalore', value: 'bangalore' },
+            { label: 'Delhi', value: 'delhi' },
+            { label: 'Mumbai', value: 'mumbai' },
+            { label: 'Hyderabad', value: 'hyderabad' },
+            { label: 'Other', value: 'other' }
+          ],
+          gridColumn: 'half'
+        },
+        // Mobile Number
+        {
+          ...initialFieldStates.textInput,
+          id: mobileId,
+          label: 'Mobile Number',
+          placeholder: '',
+          helperText: '',
+          required: true,
+        },
+        // Whatsapp checkbox
+        {
+          ...initialFieldStates.checkbox,
+          id: whatsappId,
+          label: '',
+          helperText: '',
+          required: false,
+          checkboxLabel: 'Whatsapp Me?',
+          checkboxText: ''
+        },
+        // Email ID
+        {
+          ...initialFieldStates.email,
+          id: emailId,
+          label: 'Email ID',
+          placeholder: '',
+          helperText: '',
+          required: true,
+        },
+        // Resume upload
+        {
+          ...initialFieldStates.fileUpload,
+          id: resumeUploadId,
+          label: 'Upload your resume to be considered for jobs that match',
+          helperText: 'PDF, DOC, DOCX up to 5MB',
+          required: true,
+          allowedTypes: 'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          fileTypeText: 'PDF, DOC, DOCX up to 5MB',
+          maxFileSize: 5
+        },
+        // Job Description banner
+        {
+          ...initialFieldStates.bannerUpload,
+          id: jobDescriptionId,
+          label: 'Download Job Description',
+          helperText: '',
+          position: 'left',
+          canUpload: false,
+          canDownload: true,
+          bannerUrl: '',
+        }
+      ]
+    });
+  };
 
   const value = {
     formState,
@@ -246,7 +424,8 @@ export const FormBuilderProvider = ({ children }) => {
     setShowPreviewModal,
     showPublishModal,
     setShowPublishModal,
-    resetFormBuilder
+    resetFormBuilder,
+    createCareerDriveForm
   };
 
   return (
