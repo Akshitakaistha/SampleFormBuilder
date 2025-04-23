@@ -27,9 +27,11 @@ const FormHeader = ({ onPreview, onSaveDraft, onPublish }) => {
   
   const handleCreateCareerDriveForm = () => {
     createCareerDriveForm();
-    // After a brief delay, save the form
+    // After a brief delay, save the form and show preview
     setTimeout(() => {
       onSaveDraft();
+      // Show preview after form is created
+      onPreview();
     }, 500);
   };
   

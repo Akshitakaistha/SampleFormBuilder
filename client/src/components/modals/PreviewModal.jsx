@@ -79,9 +79,17 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
     alert('Form submitted successfully in preview mode!');
   };
   
-  // Check if we have a banner component
+  // Check if we have banner components
   const hasBannerComponent = formFields.some(field => field.type === 'bannerUpload');
-  const bannerField = formFields.find(field => field.type === 'bannerUpload');
+  // Get all banner fields
+  const bannerFields = formFields.filter(field => field.type === 'bannerUpload');
+  // Get the main banner field (left position if available, otherwise the first one)
+  const bannerField = bannerFields.find(field => field.position === 'left') || bannerFields[0];
+  // Get right positioned banner field
+  const rightBannerField = bannerFields.find(field => field.position === 'right');
+  // Get center positioned banner field (for poster upload)
+  const centerBannerField = bannerFields.find(field => field.position === 'center');
+  // All other non-banner fields
   const regularFields = formFields.filter(field => field.type !== 'bannerUpload');
 
   return (
@@ -90,10 +98,24 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
         {/* Header bar */}
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Form Preview: {formName}</h2>
+          
+          {/* Share page link button (if available) */}
+          {rightBannerField && (
+            <div className="ml-auto mr-2">
+              <button 
+                type="button"
+                className="flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <Icons.ExternalLink className="h-4 w-4 mr-1" />
+                {rightBannerField.label || 'Share Page Link'}
+              </button>
+            </div>
+          )}
+          
           <button 
             type="button"
             onClick={onClose}
-            className="ml-auto flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className={`${rightBannerField ? '' : 'ml-auto'} flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50`}
           >
             <Icons.X className="h-5 w-5 mr-1" />
             Close Preview
@@ -109,6 +131,25 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
               </div>
             )}
             <form onSubmit={handleSubmit} className="w-full">
+              {/* Add center poster upload banner if available */}
+              {centerBannerField && (
+                <div className="w-full p-6 border-b border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-center">
+                  <div className="max-w-md mx-auto">
+                    <p className="text-lg font-medium text-gray-700">{centerBannerField.label || 'Upload Poster'}</p>
+                    <p className="mt-1 text-sm text-gray-500">{centerBannerField.helperText || ''}</p>
+                    <div className="mt-4">
+                      <button 
+                        type="button"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      >
+                        <Icons.Upload className="mr-2 h-4 w-4" />
+                        Upload Poster
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {hasBannerComponent ? (
                 <div>
                   {/* Banner section */}
