@@ -27,6 +27,10 @@ const FormHeader = ({ onPreview, onSaveDraft, onPublish }) => {
   
   const handleCreateCareerDriveForm = () => {
     createCareerDriveForm();
+    // After a brief delay, save the form
+    setTimeout(() => {
+      onSaveDraft();
+    }, 500);
   };
   
   return (

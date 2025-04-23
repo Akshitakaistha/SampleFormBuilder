@@ -282,6 +282,7 @@ export const FormBuilderProvider = ({ children }) => {
           label: 'Gender',
           helperText: '',
           required: true,
+          layout: 'vertical',
           options: [
             { label: 'Male', value: 'male' },
             { label: 'Female', value: 'female' },
@@ -394,16 +395,43 @@ export const FormBuilderProvider = ({ children }) => {
           fileTypeText: 'PDF, DOC, DOCX up to 5MB',
           maxFileSize: 5
         },
-        // Job Description banner
+        // Share Page Link banner for right side
+        {
+          ...initialFieldStates.bannerUpload,
+          id: uuidv4(),
+          label: 'Share Page Link',
+          helperText: '',
+          position: 'right',
+          canUpload: false,
+          canDownload: false,
+          canShare: true,
+          bannerUrl: '',
+          bannerStyle: 'compact'
+        },
+        // Job Description banner for left side
         {
           ...initialFieldStates.bannerUpload,
           id: jobDescriptionId,
           label: 'Download Job Description',
           helperText: '',
           position: 'left',
-          canUpload: false,
+          canUpload: true,
           canDownload: true,
+          uploadLabel: 'Upload Poster (JPEG or PNG)',
           bannerUrl: '',
+        },
+        // Upload Poster banner with prompt
+        {
+          ...initialFieldStates.bannerUpload,
+          id: uuidv4(),
+          label: 'Upload Poster (JPEG or PNG)',
+          helperText: 'Don\'t have a Design? Lets Create here...',
+          position: 'center',
+          canUpload: true,
+          canDownload: false,
+          uploadLabel: 'Upload Poster',
+          bannerUrl: '',
+          bannerStyle: 'large'
         }
       ]
     });
