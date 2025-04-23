@@ -103,6 +103,11 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
         {/* Main content */}
         <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            {formState.description && (
+              <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                <p className="text-sm text-gray-600">{formState.description}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="w-full">
               {hasBannerComponent ? (
                 <div>
