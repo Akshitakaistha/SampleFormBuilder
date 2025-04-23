@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
+import { useFormBuilder } from '@/contexts/FormBuilderContext';
 
 const PreviewModal = ({ onClose, formFields, formName }) => {
+  const { formState } = useFormBuilder();
   const [formValues, setFormValues] = useState({});
   const [dragActive, setDragActive] = useState({});
   
