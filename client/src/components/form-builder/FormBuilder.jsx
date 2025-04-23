@@ -347,12 +347,35 @@ const FormBuilder = ({ formId }) => {
         <PropertyEditor />
       </div>
 
-      {showPreviewModal && (
+      {showPreviewModal && formState.fields && formState.fields.length > 0 && (
         <PreviewModal 
           onClose={() => setShowPreviewModal(false)}
           formFields={formState.fields}
           formName={formState.name || 'Untitled Form'}
+          formState={formState}
         />
+      )}
+      
+      {/* Render an empty preview if no fields exist */}
+      {showPreviewModal && (!formState.fields || formState.fields.length === 0) && (
+        <div className="fixed inset-0 z-50 bg-white overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Form Preview: {formState.name || 'Untitled Form'}</h2>
+            <button 
+              type="button"
+              onClick={() => setShowPreviewModal(false)}
+              className="ml-auto flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <span className="mr-1">×</span>
+              Close Preview
+            </button>
+          </div>
+          <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 text-center">
+              <p className="text-gray-500">This form doesn't have any fields yet. Add some fields to see a preview.</p>
+            </div>
+          </div>
+        </div>
       )}
 
       {showPublishModal && (
